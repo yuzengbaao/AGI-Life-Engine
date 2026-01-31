@@ -1,0 +1,109 @@
+# AGI Autonomous Core - Git Ignore File
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+pip-wheel-metadata/
+share/python-wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+MANIFEST
+
+# Virtual Environment
+venv/
+env/
+ENV/
+env.bak/
+venv.bak/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.DS_Store
+
+# Project Specific
+data/
+*.db
+*.sqlite
+*.sqlite3
+
+# API Keys and Secrets
+.env
+.env.*
+!.env.example
+!.env.multi_model
+
+# Logs
+*.log
+logs/
+
+# Cache
+.cache/
+*.cache
+
+# Temporary files
+*.tmp
+*.temp
+temp/
+tmp/
+
+# Output files (generated code)
+data/autonomous_outputs_v3_5/
+data/autonomous_outputs_v4_0/
+data/autonomous_outputs_v5_0/
+data/autonomous_outputs_v6_0/
+data/autonomous_outputs_v6_1/
+
+# Keep example outputs but ignore large ones
+# data/autonomous_outputs_v6_1/deepseek/project_*.json
+
+# OS
+Thumbs.db
+desktop.ini
+
+# Test coverage
+.coverage
+htmlcov/
+.pytest_cache/
+.coverage.*
+.cache
+
+# Jupyter
+.ipynb_checkpoints/
+*.ipynb
+
+# MyPy
+.mypy_cache/
+.dmypy.json
+dmypy.json
+
+# Pyre
+.pyre/
+
+# pytype
+.pytype/
+
+# Cython
+cython_debug/
+
+# Documentation builds
+docs/_build/
