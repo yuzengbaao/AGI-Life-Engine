@@ -25,28 +25,60 @@
 
 ## 🚀 快速开始
 
-### 1. 安装依赖
+### 📖 详细文档
+
+| 文档 | 说明 |
+|------|------|
+| **[安装指南](INSTALL.md)** | 📦 详细的安装步骤，支持 Windows/macOS/Linux |
+| **[使用说明](USER_GUIDE.md)** | 📖 完整的使用教程，包含快速开始和进阶使用 |
+| **[技术指南](MULTI_MODEL_GUIDE.md)** | 🔧 多基座模型技术对比和配置 |
+| **[贡献指南](CONTRIBUTING.md)** | 🤝 如何贡献代码 |
+
+### ⚡ 5 分钟快速安装
+
+#### 1. 克隆项目
 
 ```bash
-pip install openai python-dotenv asyncio
+git clone https://github.com/yuzengbaao/-AGI-Autonomous-Core.git
+cd -AGI-Autonomous-Core
 ```
 
-### 2. 配置 API KEY
+#### 2. 安装依赖
+
+```bash
+# 创建虚拟环境（推荐）
+python -m venv venv
+
+# 激活虚拟环境
+# Windows: venv\Scripts\activate
+# macOS/Linux: source venv/bin/activate
+
+# 安装依赖
+pip install -r requirements.txt
+```
+
+#### 3. 配置 API KEY
 
 ```bash
 # 复制配置模板
 cp .env.multi_model .env
 
 # 编辑 .env，添加你的 API KEY
+# Windows: notepad .env
+# macOS/Linux: nano .env
+
 # 至少配置一个：
-DEEPSEEK_API_KEY=your_deepseek_api_key
-ZHIPU_API_KEY=your_zhipu_api_key
-KIMI_API_KEY=your_kimi_api_key
-QWEN_API_KEY=your_qwen_api_key
-GEMINI_API_KEY=your_gemini_api_key
+DEEPSEEK_API_KEY=sk-your_actual_api_key_here
 ```
 
-### 3. 运行系统
+**📍 获取 API KEY**：
+- [DeepSeek](https://platform.deepseek.com/) - 推荐，代码生成强
+- [智谱 GLM](https://open.bigmodel.cn/) - 中文任务好
+- [Moonshot Kimi](https://platform.moonshot.cn/) - 超长上下文
+- [阿里千问](https://dashscope.aliyuncs.com/) - 平衡性能
+- [Google Gemini](https://ai.google.dev/) - 多模态
+
+#### 4. 运行系统
 
 #### 方式 1: 运行单个基座模型
 
@@ -252,11 +284,42 @@ python compare_models.py
 
 ---
 
-## 📚 相关资源
+## 📚 文档中心
 
-- [MULTI_MODEL_GUIDE.md](MULTI_MODEL_GUIDE.md) - 详细使用指南
-- [MULTI_MODEL_SUMMARY.md](MULTI_MODEL_SUMMARY.md) - 完整总结
-- [.env.multi_model](.env.multi_model) - 配置模板
+### 📘 用户文档
+
+| 文档 | 内容 | 适用对象 |
+|------|------|----------|
+| **[安装指南](INSTALL.md)** | Windows/macOS/Linux 详细安装步骤 | 所有用户 |
+| **[使用说明](USER_GUIDE.md)** | 完整使用教程，包含快速开始、详细教程、常见问题 | 所有用户 |
+| **[快速开始](#-5-分钟快速安装)** | 5 分钟快速安装 | 有经验用户 |
+| **[FAQ](USER_GUIDE.md#常见问题)** | 常见问题解答 | 遇到问题的用户 |
+
+### 🔧 技术文档
+
+| 文档 | 内容 | 适用对象 |
+|------|------|----------|
+| **[多模型指南](MULTI_MODEL_GUIDE.md)** | 多基座模型对比和配置 | 开发者/研究者 |
+| **[技术总结](MULTI_MODEL_SUMMARY.md)** | 完整技术总结和架构说明 | 开发者/研究者 |
+| **[贡献指南](CONTRIBUTING.md)** | 如何贡献代码 | 贡献者 |
+| **[更新日志](CHANGELOG.md)** | 版本历史和更新内容 | 所有用户 |
+
+### 📞 获取帮助
+
+- **安装问题** → 查看 [安装指南 - 常见安装问题](INSTALL.md#常见安装问题)
+- **使用问题** → 查看 [使用说明 - 常见问题](USER_GUIDE.md#常见问题)
+- **Bug 反馈** → [提交 Issue](https://github.com/yuzengbaao/-AGI-Autonomous-Core/issues)
+
+---
+
+## 🔗 相关链接
+
+- [GitHub 仓库](https://github.com/yuzengbaao/-AGI-Autonomous-Core)
+- [DeepSeek 官网](https://www.deepseek.com/)
+- [智谱 AI 官网](https://www.zhipuai.cn/)
+- [Moonshot AI 官网](https://www.moonshot.cn/)
+- [阿里云千问](https://tongyi.aliyun.com/)
+- [Google Gemini](https://ai.google.dev/)
 
 ---
 
