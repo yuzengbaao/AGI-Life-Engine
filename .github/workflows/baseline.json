@@ -1,0 +1,170 @@
+{
+  "timestamp": "2026-02-04T20:52:24.827088",
+  "results": [
+    {
+      "name": "Cache: PUT",
+      "iterations": 1000,
+      "total_time": 1.5913998649921268,
+      "avg_time": 0.0015913998649921268,
+      "min_time": 0.0011999945854768157,
+      "max_time": 0.09109999518841505,
+      "median_time": 0.0012999953469261527,
+      "std_dev": 0.0032890672275940544,
+      "ops_per_second": 628377.5825285416,
+      "metadata": {
+        "component": "cache",
+        "operation": "put"
+      }
+    },
+    {
+      "name": "Cache: GET (hit)",
+      "iterations": 1000,
+      "total_time": 630.5135001748567,
+      "avg_time": 0.6305135001748567,
+      "min_time": 0.5423999973572791,
+      "max_time": 1.483700005337596,
+      "median_time": 0.5779000057373196,
+      "std_dev": 0.13198981024913753,
+      "ops_per_second": 1586.0088637637032,
+      "metadata": {
+        "component": "cache",
+        "operation": "get_hit"
+      }
+    },
+    {
+      "name": "Cache: GET (miss)",
+      "iterations": 1000,
+      "total_time": 1.525599989690818,
+      "avg_time": 0.001525599989690818,
+      "min_time": 0.0012999953469261527,
+      "max_time": 0.024900000425986946,
+      "median_time": 0.0013999961083754897,
+      "std_dev": 0.0015506221136669651,
+      "ops_per_second": 655479.8156511935,
+      "metadata": {
+        "component": "cache",
+        "operation": "get_miss"
+      }
+    },
+    {
+      "name": "Cache: Generate Key",
+      "iterations": 1000,
+      "total_time": 2.0089001627638936,
+      "avg_time": 0.0020089001627638936,
+      "min_time": 0.0012999953469261527,
+      "max_time": 0.08480000542476773,
+      "median_time": 0.0015999976312741637,
+      "std_dev": 0.0037283043189180786,
+      "ops_per_second": 497784.8170534148,
+      "metadata": {
+        "component": "cache",
+        "operation": "generate_key"
+      }
+    },
+    {
+      "name": "Cache: Eviction",
+      "iterations": 10,
+      "total_time": 0.038699989090673625,
+      "avg_time": 0.0038699989090673625,
+      "min_time": 0.0015999976312741637,
+      "max_time": 0.022899999748915434,
+      "median_time": 0.0016999983927235007,
+      "std_dev": 0.006688639120093751,
+      "ops_per_second": 258398.00565757568,
+      "metadata": {
+        "component": "cache",
+        "operation": "eviction"
+      }
+    },
+    {
+      "name": "Lifecycle: Register",
+      "iterations": 1000,
+      "total_time": 2.095700052450411,
+      "avg_time": 0.002095700052450411,
+      "min_time": 0.0015999976312741637,
+      "max_time": 0.054799995268695056,
+      "median_time": 0.0017999991541728377,
+      "std_dev": 0.0027657511294836962,
+      "ops_per_second": 477167.5215786455,
+      "metadata": {
+        "component": "lifecycle",
+        "operation": "register"
+      }
+    },
+    {
+      "name": "Lifecycle: Touch",
+      "iterations": 1000,
+      "total_time": 131.75649993354455,
+      "avg_time": 0.13175649993354455,
+      "min_time": 0.10639999527484179,
+      "max_time": 0.4673999937949702,
+      "median_time": 0.10859999747481197,
+      "std_dev": 0.040383835424883524,
+      "ops_per_second": 7589.7583838701,
+      "metadata": {
+        "component": "lifecycle",
+        "operation": "touch"
+      }
+    },
+    {
+      "name": "Lifecycle: Eviction (LRU)",
+      "iterations": 10,
+      "total_time": 0.0154000153997913,
+      "avg_time": 0.00154000153997913,
+      "min_time": 0.0013999961083754897,
+      "max_time": 0.0018999999156221747,
+      "median_time": 0.0014999968698248267,
+      "std_dev": 0.00015055331439517823,
+      "ops_per_second": 649350.0000094493,
+      "metadata": {
+        "component": "lifecycle",
+        "operation": "eviction_lru"
+      }
+    },
+    {
+      "name": "Limiter: Get Limit",
+      "iterations": 1000,
+      "total_time": 0.7298999262275174,
+      "avg_time": 0.0007298999262275174,
+      "min_time": 0.000600004568696022,
+      "max_time": 0.0025000044843181968,
+      "median_time": 0.000700005330145359,
+      "std_dev": 7.253444769906294e-05,
+      "ops_per_second": 1370050.8303494328,
+      "metadata": {
+        "component": "limiter",
+        "operation": "get_limit"
+      }
+    },
+    {
+      "name": "Limiter: Record Performance",
+      "iterations": 1000,
+      "total_time": 1.0319000284653157,
+      "avg_time": 0.0010319000284653157,
+      "min_time": 0.0005999900167807937,
+      "max_time": 0.043199994252063334,
+      "median_time": 0.000800006091594696,
+      "std_dev": 0.002009081368191686,
+      "ops_per_second": 969086.125026318,
+      "metadata": {
+        "component": "limiter",
+        "operation": "record_performance"
+      }
+    },
+    {
+      "name": "Full: Decision Flow",
+      "iterations": 1000,
+      "total_time": 3.149700045469217,
+      "avg_time": 0.003149700045469217,
+      "min_time": 0.0028999929782003164,
+      "max_time": 0.03579999611247331,
+      "median_time": 0.003000008291564882,
+      "std_dev": 0.0014487300258618297,
+      "ops_per_second": 317490.55007269053,
+      "metadata": {
+        "component": "full",
+        "operation": "decision_flow"
+      }
+    }
+  ]
+}

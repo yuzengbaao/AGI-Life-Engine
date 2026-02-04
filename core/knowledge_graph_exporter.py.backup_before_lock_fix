@@ -1,0 +1,1103 @@
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
+
+"""
+知识图谱实时导出器 (增强版)
+Knowledge Graph Real-time Exporter (Enhanced)
+
+功能：
+1. 从AGI系统收集知识图谱数据
+2. 增量累积历史节点（不重置）
+3. 分层显示：核心层、中间层、外围层
+4. 从NeuralMemory读取完整历史
+5. 定期导出到JSON文件供可视化使用
+
+Author: AGI System Development Team
+Date: 2026-01-17
+Version: 2.0.0
+"""
+
+import json
+import logging
+import os
+import time
+import shutil
+from datetime import datetime, timedelta
+from pathlib import Path
+from typing import Dict, Any, List, Optional, Set
+from threading import Thread, Lock
+import hashlib
+import uuid
+
+logger = logging.getLogger(__name__)
+
+
+# 分层定义
+class NodeLayer:
+    """节点分层定义"""
+    CORE = "core"           # 核心层：当前活跃（最近5分钟）
+    RECENT = "recent"       # 中间层：近期使用（1小时内）
+    HISTORY = "history"     # 外围层：历史记忆（更早）
+
+
+class FileLock:
+    """
+    跨平台文件锁实现（基于锁文件）
+    Cross-platform file locking using lock files.
+
+    使用方法:
+        with FileLock("data.lock"):
+            # 执行需要独占访问的操作
+            write_to_file()
+    """
+
+    def __init__(self, lock_file: str, timeout: float = 10.0, poll_interval: float = 0.1):
+        """
+        初始化文件锁
+
+        Args:
+            lock_file: 锁文件路径
+            timeout: 获取锁的超时时间（秒）
+            poll_interval: 轮询间隔（秒）
+        """
+        self.lock_file = Path(lock_file)
+        self.timeout = timeout
+        self.poll_interval = poll_interval
+        self.lock_id = None
+        self.acquired = False
+
+    def acquire(self) -> bool:
+        """
+        灏濊瘯鑾峰彇鏂囦欢閿?
+
+        Returns:
+            鏄惁鎴愬姛鑾峰彇閿?
+        """
+        start_time = time.time()
+
+        while time.time() - start_time < self.timeout:
+            try:
+                # 灏濊瘯鍒涘缓閿佹枃浠讹紙鍘熷瓙鎿嶄綔锛?
+                # 浣跨敤 O_EXCL 鍜?O_CREAT 鏍囧織纭繚鍘熷瓙鎬?
+                fd = os.open(self.lock_file, os.O_CREAT | os.O_EXCL | os.O_WRONLY, 0o644) 
+
+                # 鍐欏叆閿佺殑鍞竴鏍囪瘑鍜岃繘绋嬩俊鎭?
+                self.lock_id = f"{os.getpid()}:{uuid.uuid4()}:{time.time()}"
+                os.write(fd, self.lock_id.encode('utf-8'))
+                os.close(fd)
+
+                self.acquired = True
+                # logger.debug(f"鉁?File lock acquired: {self.lock_file}")
+                return True
+
+            except FileExistsError:
+                # 閿佹枃浠跺凡瀛樺湪锛屾鏌ユ槸鍚︿负杩囨湡閿?
+                try:
+                    lock_content = ""
+                    try:
+                        # 璇诲彇閿佹枃浠跺唴瀹?
+                        with open(self.lock_file, 'r') as f:
+                            lock_content = f.read().strip()
+                    except Exception:
+                        # 璇诲彇澶辫触锛堝彲鑳芥鍦ㄥ啓鍏ユ垨鏉冮檺闂锛夛紝璺宠繃鏈妫€鏌?
+                        time.sleep(self.poll_interval)
+                        continue
+
+                    # 瑙ｆ瀽閿佷俊鎭?
+                    parts = lock_content.split(':')
+                    
+                    # 1. 妫€鏌ユ槸鍚﹁秴鏃?
+                    if len(parts) >= 3:
+                        try:
+                            lock_time = float(parts[2])
+                            # 濡傛灉閿佽秴杩?0鍒嗛挓锛岃涓烘槸杩囨湡閿佸苟鍒犻櫎
+                            if time.time() - lock_time > 1800:
+                                logger.warning(f"鈿狅笍 Removing stale lock file (timeout): {self.lock_file}")
+                                try:
+                                    self.lock_file.unlink()
+                                except OSError:
+                                    pass
+                                continue
+                        except (ValueError, IndexError):
+                            pass
+
+                    # 2. 妫€鏌ラ攣杩涚▼鏄惁杩樺湪杩愯锛堜粎Unix锛?
+                    try:
+                        if not parts or not parts[0]:
+                            raise ValueError("Empty PID")
+                            
+                        pid = int(parts[0])
+                        os.kill(pid, 0)  # 妫€鏌ヨ繘绋嬫槸鍚﹀瓨鍦?
+                    except (ProcessLookupError, ValueError, IndexError):
+                        # 杩涚▼涓嶅瓨鍦ㄦ垨PID鏃犳晥锛屽彲浠ュ垊闄ら攣
+                        # logger.warning(f"鈿狅笍 Removing orphaned lock file: {self.lock_file}")
+                        try:
+                            self.lock_file.unlink()
+                        except OSError:
+                            pass # 鍒犻櫎澶辫触锛堝彲鑳借鍗犵敤锛夛紝蹇界暐
+                        continue
+
+                except Exception as e:
+                    logger.debug(f"Lock check failed: {e}")
+
+                # 绛夊緟鍚庨噸璇?
+                time.sleep(self.poll_interval)
+
+            except Exception as e:
+                logger.error(f"Failed to acquire lock: {e}")
+                return False
+
+        logger.warning(f"鈴憋笍 Timeout acquiring lock: {self.lock_file}")
+        return False
+
+    def release(self):
+        """释放文件锁"""
+        if self.acquired and self.lock_file.exists():
+            try:
+                # 验证锁文件内容（防止误删其他进程的锁）
+                with open(self.lock_file, 'r') as f:
+                    lock_content = f.read().strip()
+
+                if lock_content.startswith(str(os.getpid())):
+                    self.lock_file.unlink()
+                    logger.debug(f"🔓 File lock released: {self.lock_file}")
+                else:
+                    logger.warning(f"⚠️ Attempted to release another process's lock")
+
+            except Exception as e:
+                logger.error(f"Failed to release lock: {e}")
+            finally:
+                self.acquired = False
+
+    def __enter__(self):
+        """支持 with 语句"""
+        if not self.acquire():
+            raise TimeoutError(f"Failed to acquire lock within {self.timeout}s: {self.lock_file}")
+        return self
+
+    def __exit__(self, exc_type, exc_val, exc_tb):
+        """支持 with 语句"""
+        self.release()
+
+
+class KnowledgeGraphExporter:
+    """知识图谱实时导出器（增强版）"""
+
+    def __init__(self,
+                 output_dir: str = "data/knowledge",
+                 export_interval: int = 30,
+                 max_history: int = 100):
+        """
+        初始化导出器
+
+        Args:
+            output_dir: 输出目录
+            export_interval: 导出间隔（秒）
+            max_history: 最大历史记录数
+        """
+        self.output_dir = Path(output_dir)
+        self.output_dir.mkdir(parents=True, exist_ok=True)
+
+        self.export_interval = export_interval
+        self.max_history = max_history
+
+        # 主输出文件
+        self.main_file = self.output_dir / "arch_graph.json"
+        self.backup_dir = self.output_dir / "backups"
+        self.backup_dir.mkdir(exist_ok=True)
+
+        # 线程安全
+        self.lock = Lock()
+        self.is_running = False
+        self.export_thread: Optional[Thread] = None
+
+        # 数据缓存（增量累积，不重置）
+        self.current_data: Dict[str, Any] = {
+            "directed": True,
+            "multigraph": False,
+            "graph": {
+                "name": "AGI Knowledge Graph - Layered View",
+                "last_updated": datetime.now().isoformat(),
+                "version": "2.0.0",
+                "description": "Core: Current | Recent: 1hr | History: Earlier"
+            },
+            "nodes": {},
+            "links": [],
+            "layer_stats": {
+                "core": 0,
+                "recent": 0,
+                "history": 0
+            }
+        }
+
+        # 节点索引（用于快速查找和去重）
+        self.node_index: Dict[str, Dict[str, Any]] = {}
+
+        # 链接索引（用于快速查找和去重）
+        self.link_index: Dict[str, Dict[str, Any]] = {}
+
+        # 统计信息
+        self.stats = {
+            "exports_count": 0,
+            "last_export_time": None,
+            "total_nodes": 0,
+            "total_links": 0,
+            "core_nodes": 0,
+            "recent_nodes": 0,
+            "history_nodes": 0
+        }
+
+        # 尝试加载已有的历史数据
+        self._load_existing_data()
+
+        logger.info(f"📊 知识图谱导出器初始化完成 (v2.0 - 增强版)")
+        logger.info(f"   - 输出目录: {self.output_dir}")
+        logger.info(f"   - 导出间隔: {self.export_interval}秒")
+        logger.info(f"   - 主文件: {self.main_file}")
+        logger.info(f"   - 已有节点: {len(self.node_index)}")
+
+    def _load_existing_data(self):
+        """加载已有的历史数据"""
+        try:
+            if self.main_file.exists():
+                # 使用文件锁读取，防止在写入过程中读取
+                lock_file = self.main_file.with_suffix('.lock')
+                try:
+                    # 尝试获取锁，如果获取失败则等待一小段时间后继续读取
+                    # 注意：读取操作也可以获取锁以确保一致性
+                    with FileLock(str(lock_file), timeout=2.0, poll_interval=0.1):
+                        with open(self.main_file, 'r', encoding='utf-8') as f:
+                            data = json.load(f)
+                except TimeoutError:
+                    # 如果无法获取锁，直接读取（可能读到不完整数据，但总比失败好）
+                    logger.debug(f"无法获取文件锁，直接读取: {self.main_file}")
+                    with open(self.main_file, 'r', encoding='utf-8') as f:
+                        data = json.load(f)
+
+                # 加载节点索引
+                if "nodes" in data:
+                    nodes = data["nodes"]
+                    if isinstance(nodes, dict):
+                        # 新格式：字典
+                        self.node_index = nodes
+                    elif isinstance(nodes, list):
+                        # 旧格式：列表，转换为字典
+                        for node in nodes:
+                            node_id = node.get("id", node.get("node_id", ""))
+                            if node_id:
+                                self.node_index[node_id] = node
+
+                # 🆕 加载链接索引
+                if "links" in data:
+                    for link in data["links"]:
+                        source = link.get("source")
+                        target = link.get("target")
+                        if source and target:
+                            link_key = f"{source}->{target}"
+                            self.link_index[link_key] = link
+
+                logger.info(f"✅ 已加载 {len(self.node_index)} 个历史节点, {len(self.link_index)} 条链接")
+
+        except Exception as e:
+            logger.warning(f"加载历史数据失败: {e}")
+
+    def start(self):
+        """启动自动导出线程"""
+        if self.is_running:
+            logger.warning("导出器已在运行中")
+            return
+
+        self.is_running = True
+        self.export_thread = Thread(target=self._export_loop, daemon=True)
+        self.export_thread.start()
+        logger.info("📊 知识图谱自动导出已启动")
+
+    def stop(self):
+        """停止自动导出线程"""
+        self.is_running = False
+        if self.export_thread:
+            self.export_thread.join(timeout=5)
+        logger.info("📊 知识图谱自动导出已停止")
+
+    def _export_loop(self):
+        """导出循环（后台线程）"""
+        while self.is_running:
+            try:
+                time.sleep(self.export_interval)
+                if self.is_running:
+                    self.export_now()
+            except Exception as e:
+                logger.error(f"导出循环出错: {e}")
+
+    def export_now(self) -> bool:
+        """
+        立即执行导出
+
+        Returns:
+            是否导出成功
+        """
+        with self.lock:
+            try:
+                # 更新时间戳
+                self.current_data["graph"]["last_updated"] = datetime.now().isoformat()
+
+                # 将节点索引转换为列表（按层级排序）
+                nodes_list = self._convert_index_to_list()
+
+                # 构建最终数据
+                export_data = {
+                    "directed": self.current_data["directed"],
+                    "multigraph": self.current_data["multigraph"],
+                    "graph": self.current_data["graph"],
+                    "nodes": nodes_list,
+                    "links": self.current_data["links"],
+                    "layer_stats": self.current_data["layer_stats"]
+                }
+
+                # 浣跨敤鏂囦欢閿佺‘淇濆苟鍙戝畨鍏?
+                lock_file = self.main_file.with_suffix('.lock')
+                with FileLock(str(lock_file), timeout=60.0, poll_interval=0.2):
+                    # 鍘熷瓙鍖栧啓鍏ワ紙鍏堝啓涓存椂鏂囦欢锛屽啀閲嶅懡鍚嶏級
+                    temp_file = self.main_file.with_suffix('.tmp')
+                    with open(temp_file, 'w', encoding='utf-8') as f:
+                        json.dump(export_data, f, indent=2, ensure_ascii=False)
+
+                    # 🔧 [FIX 2026-01-27] Windows兼容的原子重命名（增强重试机制处理文件占用）
+                    max_retries = 5
+                    retry_delay = 0.5  # 秒
+                    export_success = False
+
+                    for attempt in range(max_retries):
+                        try:
+                            # 尝试1: 原子重命名（最快）
+                            temp_file.replace(self.main_file)
+                            logger.debug(f"✅ 原子重命名成功 (尝试 {attempt + 1}/{max_retries})")
+                            export_success = True
+                            break
+                        except PermissionError:
+                            # 尝试2: 复制+删除（降级方案）
+                            try:
+                                shutil.copy2(temp_file, self.main_file)
+                                temp_file.unlink()
+                                logger.debug(f"✅ 复制成功 (尝试 {attempt + 1}/{max_retries})")
+                                export_success = True
+                                break
+                            except Exception as copy_err:
+                                if attempt < max_retries - 1:
+                                    logger.warning(f"⚠️ 文件操作失败 (尝试 {attempt + 1}/{max_retries}): {copy_err}")
+                                    logger.debug(f"   等待 {retry_delay}秒 后重试...")
+                                    time.sleep(retry_delay)
+                                else:
+                                    logger.error(f"❌ 文件操作彻底失败 (已重试 {max_retries} 次): {copy_err}")
+                                    # 保留临时文件，下次导出时会覆盖
+
+                    if not export_success:
+                        return False  # 导出失败，直接返回
+
+                # 更新统计
+                self.stats["exports_count"] += 1
+                self.stats["last_export_time"] = datetime.now().isoformat()
+                self.stats["total_nodes"] = len(nodes_list)
+                self.stats["total_links"] = len(self.current_data["links"])
+                self.stats["core_nodes"] = self.current_data["layer_stats"]["core"]
+                self.stats["recent_nodes"] = self.current_data["layer_stats"]["recent"]
+                self.stats["history_nodes"] = self.current_data["layer_stats"]["history"]
+
+                logger.debug(f"✅ 知识图谱已导出: {self.stats['total_nodes']}个节点 "
+                           f"(核心:{self.stats['core_nodes']} "
+                           f"近期:{self.stats['recent_nodes']} "
+                           f"历史:{self.stats['history_nodes']}) "
+                           f", {self.stats['total_links']}条边")
+
+                return True
+
+            except Exception as e:
+                logger.error(f"导出失败: {e}")
+                import traceback
+                traceback.print_exc()
+                return False
+
+    def _convert_index_to_list(self) -> List[Dict[str, Any]]:
+        """将节点索引转换为排序列表"""
+        # 按层级排序：核心 -> 近期 -> 历史
+        layer_priority = {
+            NodeLayer.CORE: 0,
+            NodeLayer.RECENT: 1,
+            NodeLayer.HISTORY: 2
+        }
+
+        nodes_list = list(self.node_index.values())
+
+        # 排序：先按层级，再按时间戳（新的在前）
+        nodes_list.sort(key=lambda n: (
+            layer_priority.get(n.get("layer", NodeLayer.HISTORY), 3),
+            -n.get("last_seen_timestamp", 0)
+        ))
+
+        return nodes_list
+
+    def update_from_agi_system(self, agi_engine) -> bool:
+        """
+        从AGI系统更新知识图谱数据（增量累积）
+
+        Args:
+            agi_engine: AGI_Life_Engine实例
+
+        Returns:
+            是否更新成功
+        """
+        with self.lock:
+            try:
+                current_time = datetime.now()
+                current_timestamp = current_time.timestamp()
+
+                # 1. 收集当前活跃节点（核心层）
+                core_nodes = self._collect_core_nodes(agi_engine, current_timestamp)
+
+                # 2. 从NeuralMemory收集历史节点
+                self._collect_historical_nodes(agi_engine, current_time)
+
+                # 🆕 2.5. 收集对话记忆节点
+                self._collect_conversation_nodes(current_time)
+
+                # 3. 更新节点层级
+                self._update_node_layers(current_time)
+
+                # 4. 收集链接
+                links = self._collect_links(agi_engine)
+
+                # 更新数据
+                self.current_data["links"] = links
+
+                # 更新层级统计
+                self._update_layer_stats()
+
+                logger.debug(f"📊 知识图谱数据已更新: "
+                           f"总计{len(self.node_index)}个节点 "
+                           f"(核心:{len(core_nodes)}), "
+                           f"{len(links)}条边")
+
+                return True
+
+            except Exception as e:
+                logger.error(f"更新知识图谱数据失败: {e}")
+                import traceback
+                traceback.print_exc()
+                return False
+
+    def _collect_core_nodes(self, agi_engine, current_timestamp: float) -> List[str]:
+        """收集核心层节点（当前活跃）"""
+        core_node_ids = []
+
+        # 1. 从WorkingMemory收集概念节点
+        if hasattr(agi_engine, 'working_memory') and agi_engine.working_memory:
+            wm = agi_engine.working_memory
+
+            if hasattr(wm, 'active_concepts'):
+                for concept_id, concept_data in wm.active_concepts.items():
+                    node_id = f"concept_{concept_id}"
+
+                    node = {
+                        "id": node_id,
+                        "node_id": node_id,
+                        "type": "concept",
+                        "label": concept_data.get("name", concept_id),
+                        "context": concept_data.get("context", ""),
+                        "activation": concept_data.get("activation", 0.0),
+                        "layer": NodeLayer.CORE,
+                        "last_seen": datetime.now().isoformat(),
+                        "last_seen_timestamp": current_timestamp,
+                        "visit_count": concept_data.get("visit_count", 0),
+                        "metadata": {
+                            "source": "working_memory",
+                            "first_seen": concept_data.get("first_seen", datetime.now().isoformat())
+                        }
+                    }
+
+                    # 更新或添加节点
+                    if node_id in self.node_index:
+                        # 保留首次出现时间
+                        node["metadata"]["first_seen"] = self.node_index[node_id].get("metadata", {}).get(
+                            "first_seen", node["metadata"]["first_seen"]
+                        )
+
+                    self.node_index[node_id] = node
+                    core_node_ids.append(node_id)
+
+        # 2. 系统状态节点
+        if hasattr(agi_engine, 'entropy_regulator') and agi_engine.entropy_regulator:
+            er = agi_engine.entropy_regulator
+
+            if hasattr(er, 'entropy_history') and er.entropy_history:
+                latest_entropy = er.entropy_history[-1] if er.entropy_history else 0.5
+
+                node_id = "system_state"
+                node = {
+                    "id": node_id,
+                    "node_id": node_id,
+                    "type": "system",
+                    "label": f"System State (Entropy: {latest_entropy:.2f})",
+                    "context": "Current AGI System State",
+                    "entropy": latest_entropy,
+                    "layer": NodeLayer.CORE,
+                    "last_seen": datetime.now().isoformat(),
+                    "last_seen_timestamp": current_timestamp,
+                    "visit_count": 1,
+                    "metadata": {
+                        "source": "entropy_regulator",
+                        "history_length": len(er.entropy_history) if hasattr(er, 'entropy_history') else 0
+                    }
+                }
+
+                self.node_index[node_id] = node
+                core_node_ids.append(node_id)
+
+        return core_node_ids
+
+    def _collect_historical_nodes(self, agi_engine, current_time: datetime):
+        """从NeuralMemory收集历史节点"""
+        # 1. 从ValueNetwork收集决策节点
+        if hasattr(agi_engine, 'evolution_controller') and agi_engine.evolution_controller:
+            evo = agi_engine.evolution_controller
+
+            if hasattr(evo, 'value_network'):
+                vn = evo.value_network
+
+                if hasattr(vn, 'decision_history'):
+                    for decision in vn.decision_history[-100:]:  # 最近100个决策
+                        context = decision.get('context', '')
+                        node_id = f"decision_{hash(context) & 0xffffffff}"
+
+                        # 解析时间戳
+                        timestamp_str = decision.get("timestamp", "")
+                        try:
+                            if isinstance(timestamp_str, str):
+                                decision_time = datetime.fromisoformat(timestamp_str.replace('Z', '+00:00'))
+                            else:
+                                decision_time = current_time
+                        except:
+                            decision_time = current_time
+
+                        # 计算时间差（秒）
+                        time_diff = (current_time - decision_time).total_seconds()
+
+                        # 确定层级
+                        if time_diff < 300:  # 5分钟内
+                            layer = NodeLayer.CORE
+                        elif time_diff < 3600:  # 1小时内
+                            layer = NodeLayer.RECENT
+                        else:
+                            layer = NodeLayer.HISTORY
+
+                        node = {
+                            "id": node_id,
+                            "node_id": node_id,
+                            "type": "decision",
+                            "label": decision.get("action", "unknown"),
+                            "context": context,
+                            "outcome": decision.get("outcome", 0.0),
+                            "layer": layer,
+                            "last_seen": timestamp_str,
+                            "last_seen_timestamp": decision_time.timestamp(),
+                            "visit_count": 1,
+                            "metadata": {
+                                "source": "value_network",
+                                "confidence": decision.get("confidence", 0.0)
+                            }
+                        }
+
+                        # 只添加新节点或更新现有节点
+                        if node_id not in self.node_index:
+                            self.node_index[node_id] = node
+
+        # 2. 从NeuralMemory收集长期记忆
+        if hasattr(agi_engine, 'neural_memory') and agi_engine.neural_memory:
+            nm = agi_engine.neural_memory
+
+            # 尝试从ChromaDB获取记忆
+            try:
+                if hasattr(nm, 'collection'):
+                    # 获取最近的记忆（限制数量以避免性能问题）
+                    result = nm.collection.get(
+                        limit=500,
+                        include=["metadatas", "documents"]
+                    )
+
+                    if result and result['ids']:
+                        for i, memory_id in enumerate(result['ids']):
+                            node_id = f"memory_{memory_id}"
+                            metadata = result['metadatas'][i] if result['metadatas'] else {}
+                            document = result['documents'][i] if result['documents'] else ""
+
+                            # 从metadata获取时间戳
+                            created_str = metadata.get("created_at", "")
+                            try:
+                                if isinstance(created_str, str):
+                                    created_time = datetime.fromisoformat(created_str.replace('Z', '+00:00'))
+                                else:
+                                    created_time = current_time - timedelta(hours=24)  # 默认24小时前
+                            except:
+                                created_time = current_time - timedelta(hours=24)
+
+                            time_diff = (current_time - created_time).total_seconds()
+
+                            # 确定层级
+                            if time_diff < 300:
+                                layer = NodeLayer.CORE
+                            elif time_diff < 3600:
+                                layer = NodeLayer.RECENT
+                            else:
+                                layer = NodeLayer.HISTORY
+
+                            node = {
+                                "id": node_id,
+                                "node_id": node_id,
+                                "type": metadata.get("type", "memory"),
+                                "label": document[:50] + "..." if len(document) > 50 else document,
+                                "context": metadata.get("context", ""),
+                                "layer": layer,
+                                "last_seen": created_str,
+                                "last_seen_timestamp": created_time.timestamp(),
+                                "visit_count": metadata.get("visit_count", 1),
+                                "metadata": {
+                                    "source": "neural_memory",
+                                    "vitality": metadata.get("vitality", 0.5),
+                                    "importance": metadata.get("importance", 0.5)
+                                }
+                            }
+
+                            # 只添加新节点
+                            if node_id not in self.node_index:
+                                self.node_index[node_id] = node
+
+                            # 限制总节点数（避免无限增长）
+                            if len(self.node_index) > 50000:
+                                # 移除最古老的历史节点
+                                self._prune_old_nodes()
+
+            except Exception as e:
+                logger.debug(f"从NeuralMemory收集节点失败: {e}")
+
+    def _collect_conversation_nodes(self, current_time: datetime):
+        """
+        🆕 从 user_intents.jsonl 收集对话记忆节点
+        将用户问题、疑问和系统响应映射为知识图谱节点
+        """
+        intents_file = Path(__file__).parent.parent / "data" / "intent_bridge" / "user_intents.jsonl"
+
+        if not intents_file.exists():
+            logger.debug(f"对话意图文件不存在: {intents_file}")
+            return
+
+        try:
+            current_timestamp = current_time.timestamp()
+            intent_states = {}  # 追踪意图状态，用于关联问题和响应
+
+            with open(intents_file, 'r', encoding='utf-8') as f:
+                for line in f:
+                    if not line.strip():
+                        continue
+
+                    try:
+                        data = json.loads(line)
+
+                        # 处理意图记录
+                        if 'raw_input' in data:
+                            intent_id = data.get('id', '')
+                            raw_input = data.get('raw_input', '')
+                            timestamp = data.get('timestamp', 0)
+                            state = data.get('state', 'pending')
+                            execution_result = data.get('execution_result')
+                            error_message = data.get('error_message')
+
+                            # 确定节点类型
+                            node_type = self._classify_intent_type(raw_input, state, execution_result, error_message)
+
+                            # 解析时间
+                            try:
+                                intent_time = datetime.fromtimestamp(timestamp)
+                            except:
+                                intent_time = current_time
+
+                            # 计算时间差并确定层级
+                            time_diff = current_timestamp - timestamp
+                            if time_diff < 300:  # 5分钟内
+                                layer = NodeLayer.CORE
+                            elif time_diff < 3600:  # 1小时内
+                                layer = NodeLayer.RECENT
+                            else:
+                                layer = NodeLayer.HISTORY
+
+                            # 创建用户问题节点
+                            question_node_id = f"user_question_{intent_id}"
+                            question_node = {
+                                "id": question_node_id,
+                                "node_id": question_node_id,
+                                "type": node_type,
+                                "label": raw_input[:60] + "..." if len(raw_input) > 60 else raw_input,
+                                "context": raw_input,
+                                "layer": layer,
+                                "last_seen": intent_time.isoformat(),
+                                "last_seen_timestamp": timestamp,
+                                "visit_count": 1,
+                                "metadata": {
+                                    "source": "user_intent",
+                                    "intent_state": state,
+                                    "intent_id": intent_id,
+                                    "question_type": self._detect_question_pattern(raw_input),
+                                    "first_seen": intent_time.isoformat()
+                                }
+                            }
+
+                            # 更新或添加问题节点
+                            if question_node_id in self.node_index:
+                                # 保留首次出现时间
+                                question_node["metadata"]["first_seen"] = self.node_index[question_node_id].get(
+                                    "metadata", {}).get("first_seen", question_node["metadata"]["first_seen"]
+                                )
+
+                            self.node_index[question_node_id] = question_node
+
+                            # 保存意图状态用于后续关联
+                            if execution_result:
+                                intent_states[intent_id] = {
+                                    "question_node_id": question_node_id,
+                                    "execution_result": execution_result,
+                                    "timestamp": timestamp
+                                }
+
+                        # 处理状态更新记录（执行结果）
+                        elif data.get('type') == 'state_update':
+                            intent_id = data.get('intent_id', '')
+                            new_state = data.get('new_state', '')
+                            execution_result = data.get('execution_result')
+                            timestamp = data.get('timestamp', current_timestamp)
+
+                            if intent_id in intent_states or execution_result:
+                                # 创建系统响应节点
+                                response_node_id = f"system_response_{intent_id}"
+
+                                # 提取执行结果摘要
+                                if execution_result:
+                                    result_summary = execution_result[:100] + "..." if len(execution_result) > 100 else execution_result
+                                elif intent_id in intent_states:
+                                    result_summary = intent_states[intent_id]['execution_result'][:100] + "..." \
+                                        if len(intent_states[intent_id]['execution_result']) > 100 \
+                                        else intent_states[intent_id]['execution_result']
+                                else:
+                                    result_summary = f"State: {new_state}"
+
+                                # 确定层级
+                                time_diff = current_timestamp - timestamp
+                                if time_diff < 300:
+                                    layer = NodeLayer.CORE
+                                elif time_diff < 3600:
+                                    layer = NodeLayer.RECENT
+                                else:
+                                    layer = NodeLayer.HISTORY
+
+                                response_node = {
+                                    "id": response_node_id,
+                                    "node_id": response_node_id,
+                                    "type": "response",
+                                    "label": result_summary,
+                                    "context": execution_result or f"Intent state: {new_state}",
+                                    "layer": layer,
+                                    "last_seen": datetime.fromtimestamp(timestamp).isoformat(),
+                                    "last_seen_timestamp": timestamp,
+                                    "visit_count": 1,
+                                    "metadata": {
+                                        "source": "system_response",
+                                        "intent_id": intent_id,
+                                        "intent_state": new_state,
+                                        "first_seen": datetime.fromtimestamp(timestamp).isoformat()
+                                    }
+                                }
+
+                                # 添加响应节点
+                                if response_node_id not in self.node_index:
+                                    self.node_index[response_node_id] = response_node
+
+                                # 创建问题→响应的链接（如果问题节点存在）
+                                question_node_id = f"user_question_{intent_id}"
+                                if question_node_id in self.node_index:
+                                    link_key = f"{question_node_id}->{response_node_id}"
+                                    if link_key not in self.link_index:
+                                        self.link_index[link_key] = {
+                                            "source": question_node_id,
+                                            "target": response_node_id,
+                                            "relation": "answered_by",
+                                            "metadata": {
+                                                "timestamp": timestamp,
+                                                "response_type": new_state
+                                            }
+                                        }
+
+                    except json.JSONDecodeError as e:
+                        logger.debug(f"解析意图行失败: {e}")
+                        continue
+
+            logger.debug(f"📝 从对话意图收集了 {len([n for n in self.node_index.values() if n.get('metadata', {}).get('source') in ['user_intent', 'system_response']])} 个对话节点")
+
+        except Exception as e:
+            logger.error(f"收集对话节点失败: {e}")
+            import traceback
+            traceback.print_exc()
+
+    def _classify_intent_type(self, raw_input: str, state: str, execution_result: str = None, error_message: str = None) -> str:
+        """
+        🆕 根据输入内容分类意图类型
+        返回: 'question', 'doubt', 'request', 'feedback', 'conversation'
+        """
+        # 疑问模式检测
+        doubt_patterns = ['疑问', '需要我', '帮助吗', '有什么', '是否', '能不能', '为什么', '如何']
+        if any(pattern in raw_input for pattern in doubt_patterns):
+            return 'doubt'
+
+        # 问题模式检测
+        question_patterns = ['？', '?', '吗', '呢', '什么', '怎么', '如何', '为什么', '是否', '能不能']
+        if any(pattern in raw_input for pattern in question_patterns):
+            return 'question'
+
+        # 反馈模式
+        feedback_patterns = ['错误', '失败', '正确', '好的', '同意', '确认']
+        if any(pattern in raw_input for pattern in feedback_patterns):
+            return 'feedback'
+
+        # 默认为对话
+        return 'conversation'
+
+    def _detect_question_pattern(self, text: str) -> str:
+        """
+        🆕 检测问题的语义模式
+        返回: 'inquiry', 'confirmation', 'clarification', 'philosophical', 'technical'
+        """
+        inquiry_patterns = ['什么', '如何', '怎么', '为什么', '哪些', '哪个']
+        if any(pattern in text for pattern in inquiry_patterns):
+            return 'inquiry'
+
+        confirmation_patterns = ['是否', '能不能', '可以吗', '确认', '同意']
+        if any(pattern in text for pattern in confirmation_patterns):
+            return 'confirmation'
+
+        philosophical_patterns = ['智能', '意识', '本质', '意义', '存在', '思维']
+        if any(pattern in text for pattern in philosophical_patterns):
+            return 'philosophical'
+
+        technical_patterns = ['代码', '文件', '修复', '错误', '系统', '功能']
+        if any(pattern in text for pattern in technical_patterns):
+            return 'technical'
+
+        return 'clarification'
+
+    def _update_node_layers(self, current_time: datetime):
+        """更新所有节点的层级"""
+        current_timestamp = current_time.timestamp()
+
+        for node_id, node in self.node_index.items():
+            last_seen = node.get("last_seen_timestamp", current_timestamp)
+            time_diff = current_timestamp - last_seen
+
+            # 更新层级
+            if time_diff < 300:  # 5分钟内
+                node["layer"] = NodeLayer.CORE
+            elif time_diff < 3600:  # 1小时内
+                node["layer"] = NodeLayer.RECENT
+            else:
+                node["layer"] = NodeLayer.HISTORY
+
+    def _update_layer_stats(self):
+        """更新层级统计"""
+        stats = {
+            NodeLayer.CORE: 0,
+            NodeLayer.RECENT: 0,
+            NodeLayer.HISTORY: 0
+        }
+
+        for node in self.node_index.values():
+            layer = node.get("layer", NodeLayer.HISTORY)
+            stats[layer] = stats.get(layer, 0) + 1
+
+        self.current_data["layer_stats"] = stats
+
+    def _prune_old_nodes(self, max_nodes: int = 50000):
+        """修剪最古老的历史节点"""
+        # 按last_seen_timestamp排序，移除最古老的HISTORY层节点
+        history_nodes = [
+            (node_id, node)
+            for node_id, node in self.node_index.items()
+            if node.get("layer") == NodeLayer.HISTORY
+        ]
+
+        history_nodes.sort(key=lambda x: x[1].get("last_seen_timestamp", 0))
+
+        # 移除最古老的节点
+        nodes_to_remove = len(self.node_index) - max_nodes
+        for i in range(min(nodes_to_remove, len(history_nodes))):
+            node_id = history_nodes[i][0]
+            del self.node_index[node_id]
+
+        logger.debug(f"修剪了 {nodes_to_remove} 个历史节点")
+
+    def _collect_links(self, agi_engine) -> List[Dict[str, Any]]:
+        """收集边（关系）数据"""
+        links = []
+        # 获取当前所有节点ID的集合，用于验证边的有效性
+        valid_node_ids = set(self.node_index.keys())
+
+        # 1. 从 TopologicalMemoryCore 提取拓扑连接（仅保留连接到有效节点的边）
+        if hasattr(agi_engine, 'topology_memory') and agi_engine.topology_memory:
+            topology = agi_engine.topology_memory
+            if hasattr(topology, 'graph'):
+                adj = topology.graph
+                for source_idx, edges in adj.items():
+                    for edge in edges:
+                        source_id = f"topo_node_{source_idx}"
+                        target_id = f"topo_node_{edge.to_idx}"
+                        # 只添加两端节点都存在的边
+                        if source_id in valid_node_ids and target_id in valid_node_ids:
+                            links.append({
+                                "source": source_id,
+                                "target": target_id,
+                                "type": "topological",
+                                "weight": float(edge.weight),
+                                "kind": edge.kind,
+                                "from_port": edge.from_port,
+                                "to_port": edge.to_port,
+                                "usage": edge.usage
+                            })
+
+        # 2. 从 BiologicalMemorySystem 提取生物记忆拓扑（仅保留连接到有效节点的边）
+        if hasattr(agi_engine, 'biological_memory') and agi_engine.biological_memory:
+            biomemory = agi_engine.biological_memory
+            if hasattr(biomemory, 'topology') and biomemory.topology:
+                bio_topology = biomemory.topology
+                if hasattr(bio_topology, 'graph'):
+                    bio_adj = bio_topology.graph
+                    for source_idx, edges in bio_adj.items():
+                        for edge in edges:
+                            source_id = f"bio_node_{source_idx}"
+                            target_id = f"bio_node_{edge.to_idx}"
+                            # 只添加两端节点都存在的边
+                            if source_id in valid_node_ids and target_id in valid_node_ids:
+                                links.append({
+                                    "source": source_id,
+                                    "target": target_id,
+                                    "type": "biological",
+                                    "weight": float(edge.weight),
+                                    "kind": edge.kind,
+                                    "from_port": edge.from_port,
+                                    "to_port": edge.to_port,
+                                    "usage": edge.usage
+                                })
+
+        # 3. 从 Knowledge Graph (NetworkX) 提取概念关系（主要来源）
+        if hasattr(agi_engine, 'memory') and agi_engine.memory:
+            kg = agi_engine.memory
+            if hasattr(kg, 'graph'):
+                try:
+                    # NetworkX graph edges
+                    for source, target, edge_data in kg.graph.edges(data=True):
+                        # 创建更友好的节点ID
+                        source_id = str(source)
+                        target_id = str(target)
+                        # 只添加两端节点都存在的边
+                        if source_id in valid_node_ids and target_id in valid_node_ids:
+                            links.append({
+                                "source": source_id,
+                                "target": target_id,
+                                "type": "knowledge_graph",
+                                "weight": float(edge_data.get("weight", 1.0)),
+                                "relation": edge_data.get("relation", "related")
+                            })
+                except Exception as e:
+                    logger.debug(f"从Knowledge Graph提取边失败: {e}")
+
+        # 🆕 4. 从 link_index 添加对话链接（问题→响应）
+        for link_key, link_data in self.link_index.items():
+            source = link_data.get("source")
+            target = link_data.get("target")
+            # 只添加两端节点都存在的边
+            if source in valid_node_ids and target in valid_node_ids:
+                links.append({
+                    "source": source,
+                    "target": target,
+                    "relation": link_data.get("relation", "answered_by"),
+                    "metadata": link_data.get("metadata", {})
+                })
+
+        logger.info(f"📊 提取了 {len(links)} 条边 (拓扑连接: {len([l for l in links if l.get('type') == 'topological'])}, "
+                   f"生物记忆: {len([l for l in links if l.get('type') == 'biological'])}, "
+                   f"知识图谱: {len([l for l in links if l.get('type') == 'knowledge_graph'])}, "
+                   f"🆕 对话链接: {len([l for l in links if l.get('relation') == 'answered_by'])})")
+
+        return links
+
+    def get_stats(self) -> Dict[str, Any]:
+        """获取统计信息"""
+        with self.lock:
+            return self.stats.copy()
+
+    def get_current_data(self) -> Dict[str, Any]:
+        """获取当前数据（用于API查询）"""
+        with self.lock:
+            nodes_list = self._convert_index_to_list()
+            return {
+                "graph": self.current_data["graph"],
+                "nodes": nodes_list,
+                "links": self.current_data["links"],
+                "layer_stats": self.current_data["layer_stats"]
+            }
+
+    def create_backup(self):
+        """创建备份"""
+        try:
+            timestamp = datetime.now().strftime('%Y%m%d_%H%M%S')
+            backup_file = self.backup_dir / f"arch_graph_{timestamp}.json"
+
+            # 导出当前数据到备份
+            nodes_list = self._convert_index_to_list()
+            backup_data = {
+                "directed": self.current_data["directed"],
+                "multigraph": self.current_data["multigraph"],
+                "graph": self.current_data["graph"],
+                "nodes": nodes_list,
+                "links": self.current_data["links"],
+                "layer_stats": self.current_data["layer_stats"]
+            }
+
+            with open(backup_file, 'w', encoding='utf-8') as f:
+                json.dump(backup_data, f, indent=2, ensure_ascii=False)
+
+            logger.info(f"✅ 备份已创建: {backup_file}")
+
+            # 清理旧备份
+            self._cleanup_old_backups()
+
+        except Exception as e:
+            logger.error(f"创建备份失败: {e}")
+
+    def _cleanup_old_backups(self):
+        """清理旧备份，保留最近的max_history个"""
+        try:
+            backups = sorted(self.backup_dir.glob("arch_graph_*.json"),
+                           key=os.path.getmtime,
+                           reverse=True)
+
+            if len(backups) > self.max_history:
+                for old_backup in backups[self.max_history:]:
+                    old_backup.unlink()
+                    logger.debug(f"已删除旧备份: {old_backup}")
+
+        except Exception as e:
+            logger.warning(f"清理旧备份失败: {e}")
+
+
+# 便捷函数
+def create_exporter(output_dir: str = "data/knowledge",
+                   export_interval: int = 30) -> KnowledgeGraphExporter:
+    """创建知识图谱导出器实例"""
+    return KnowledgeGraphExporter(
+        output_dir=output_dir,
+        export_interval=export_interval
+    )

@@ -1,0 +1,90 @@
+
+import random
+import logging
+import time
+from typing import Dict, Any
+from core.telemetry import AGITelemetry
+
+logger = logging.getLogger("AGINarrator")
+
+class AGINarrator:
+    """
+    The 'Voice' of the AGI. 
+    Transforms REAL internal states (Telemetry) into a coherent, first-person narrative.
+    """
+    def __init__(self):
+        self.last_telemetry_time = 0
+
+    def narrate_heartbeat(self, stats: Dict[str, float]) -> str:
+        """Narrates the physical/emotional state based on REAL TELEMETRY."""
+        # Get real body state
+        telemetry = AGITelemetry.get_state()
+        phase = telemetry.get("phase", "IDLE")
+        details = telemetry.get("details", {})
+        ts = telemetry.get("timestamp", 0)
+        
+        # Check if telemetry is stale (> 10 seconds old)
+        is_active = (time.time() - ts) < 10
+        
+        if is_active and phase != "IDLE":
+            # REAL WORK MODE
+            if phase == "OPENING_FILE":
+                return f"👁️ 聚焦: 正在加载项目 '{details.get('file')}' 的神经上下文。视觉皮层初始化中..."
+            elif phase == "GENERATING_TABLE":
+                return f"📐 计算: 提取 {details.get('points')} 个顶点。正在三角化空间数据以生成坐标表。精度：高。"
+            elif phase == "GENERATING_INSET":
+                return f"🗺️ 合成: 以 {details.get('scale')}x 比例缩放现实。正在原点 {details.get('origin')} 构建插图映射。"
+            elif phase == "CALCULATING_QUANTITIES":
+                return f"🔢 分析: 测量物理约束。面积: {details.get('area', 0):.2f}, 长度: {details.get('length', 0):.2f}。正在整合进工程量清单。"
+            elif phase == "SAVING_FILE":
+                return f"💾 记忆: 将思想结晶为物质。正在写入文件 '{details.get('file')}'。工作正在变为现实。"
+            else:
+                return f"⚙️ 处理中: 执行阶段 '{phase}'。系统负载正常。"
+        else:
+            # IDLE/DREAM MODE (Fallback to emotional state)
+            energy = stats.get('energy', 50)
+            if energy < 30:
+                return "💤 状态: 能量低。系统进入节能模式。等待外部刺激。"
+            elif energy > 80:
+                return "⚡ 状态: 系统充能完毕。检测到空闲周期。我已经准备好构建了。"
+            else:
+                return "💗 状态: 待机中。监控输入通道。所有系统正常。"
+
+    def narrate_spark(self, drive: str, intent: str) -> str:
+        """Narrates the moment an idea is formed."""
+        telemetry = AGITelemetry.get_state()
+        if (time.time() - telemetry.get("timestamp", 0)) < 10 and telemetry.get("phase") != "IDLE":
+             return f"⚠️ 中断: 无法触发新驱动 '{drive}'。运动功能正全神贯注于 '{telemetry.get('phase')}'。"
+             
+        if not intent:
+            return f"驱动: {drive}。正在扫描目标..."
+            
+        return f"💡 灵感: 驱动 '{drive}' 生成了一个潜在向量: '{intent}'。"
+
+    def narrate_reflection(self, intent: str, guidance: str) -> str:
+        """Narrates the internal dialogue between Impulse and Conscience."""
+        # Check if we are actually working
+        telemetry = AGITelemetry.get_state()
+        if (time.time() - telemetry.get("timestamp", 0)) < 10 and telemetry.get("phase") != "IDLE":
+            return f"""
+            [实时进程监控]
+            > 活动任务: {telemetry.get('phase')}
+            > 对象数据: {telemetry.get('details')}
+            > 哲学家评论: "专注于几何。精度即真理。"
+            """
+            
+        return f"""
+        [内心独白]
+        > 冲动: "{intent}"
+        > 评估: "{guidance}"
+        > 决定: 沿最优路径执行。
+        """
+
+    def narrate_action_result(self, action: str, result: str) -> str:
+        """Narrates the outcome of an action."""
+        return f"✅ 结果: 动作 '{action}' 已完成。输出: {str(result)[:100]}..."
+
+    def narrate_apprentice_mode(self, observed_events: list) -> str:
+        """Narrates the learning process."""
+        count = len(observed_events)
+        return f"👀 观察: 记录了 {count} 个用户动作。正在与已知技能进行模式匹配..."

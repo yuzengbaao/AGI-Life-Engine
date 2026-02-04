@@ -1,0 +1,139 @@
+import os
+import time
+import logging
+import hashlib
+from typing import List, Dict, Any
+from core.evolution.dynamics import EvolutionaryDynamics
+from core.evolution.impl import EvolutionController
+
+# Configure logging
+logger = logging.getLogger("ForagingSystem")
+
+class ForagingAgent:
+    """
+    The sensory-motor agent responsible for scanning the environment (Foraging)
+    and consuming resources (Digestion).
+    """
+    
+    def __init__(self, root_path: str, evolution_controller: EvolutionController):
+        self.root_path = root_path
+        self.evolution_controller = evolution_controller
+        self.known_files = set() # Simple short-term memory of seen files
+        self.last_forage_time = 0
+        
+    def perceive(self, capability_score: float) -> List[Dict[str, Any]]:
+        """
+        Scans the environment based on the current Visual Horizon.
+        """
+        horizon = EvolutionaryDynamics.calculate_visual_horizon(capability_score)
+        logger.info(f"👁️ Visual Horizon: Depth={horizon['max_depth']}, Types={horizon['allowed_extensions']}")
+        
+        candidates = []
+        
+        # Walk the directory tree with depth limit
+        start_depth = self.root_path.rstrip(os.path.sep).count(os.path.sep)
+        
+        for root, dirs, files in os.walk(self.root_path):
+            current_depth = root.rstrip(os.path.sep).count(os.path.sep) - start_depth
+            
+            if current_depth > horizon['max_depth']:
+                del dirs[:] # Don't go deeper
+                continue
+                
+            for file in files:
+                # 1. Extension Filter
+                ext = os.path.splitext(file)[1].lower()
+                if ext not in horizon['allowed_extensions']:
+                    continue
+                    
+                full_path = os.path.join(root, file)
+                
+                # 2. Memory Filter (Don't eat what you already ate)
+                # Ideally check ChromaDB, for now use local set
+                if full_path in self.known_files:
+                    continue
+                    
+                # 3. Size Filter
+                try:
+                    size = os.path.getsize(full_path)
+                    if size > horizon['max_file_size']:
+                        continue
+                        
+                    # Calculate Nutrient Density
+                    density = EvolutionaryDynamics.calculate_nutrient_density(full_path, "")
+                    
+                    candidates.append({
+                        "path": full_path,
+                        "density": density,
+                        "size": size
+                    })
+                    
+                except OSError:
+                    continue
+                    
+        # Sort by Nutrient Density (High to Low)
+        candidates.sort(key=lambda x: x['density'], reverse=True)
+        return candidates
+
+    async def forage_and_digest(self, capability_score: float) -> Dict[str, Any]:
+        """
+        Executes one full cycle of Foraging -> Selection -> Digestion.
+        """
+        self.last_forage_time = time.time()
+        
+        # 1. Scan (Async)
+        candidates = await self.perceive(capability_score)
+        if not candidates:
+            return {"status": "empty", "message": "No suitable nutrients found within horizon."}
+            
+        # 2. Select (Take the top nutrient)
+        target = candidates[0]
+        logger.info(f"🎯 Foraging Target Selected: {target['path']} (Density: {target['density']:.2f})")
+        
+        # 3. Digest
+        result = await self.digest(target['path'])
+        
+        return {
+            "status": "success",
+            "target": target['path'],
+            "digestion_result": result
+        }
+
+    async def digest(self, file_path: str) -> bool:
+        """
+        Ingests the file into the System Memory (ChromaDB + Graph).
+        """
+        try:
+            # Read Content
+            with open(file_path, 'r', encoding='utf-8', errors='ignore') as f:
+                content = f.read()
+                
+            if not content:
+                return False
+                
+            # Mark as seen
+            self.known_files.add(file_path)
+            
+            # Use EvolutionController to store (Internalization)
+            # 1. Vector Store
+            metadata = {"source": "foraging", "path": file_path, "timestamp": time.time()}
+            self.evolution_controller.memory.store_memory(
+                content=content[:2000], # Chunk limit
+                metadata=metadata
+            )
+            
+            # 2. Graph Update (Concept)
+            # Create a node for this document
+            doc_id = hashlib.md5(file_path.encode()).hexdigest()
+            self.evolution_controller.knowledge_graph.add_concept(
+                name=f"DOC_{os.path.basename(file_path)}",
+                category="ExternalResource",
+                properties={"path": file_path, "density": "high"}
+            )
+            
+            logger.info(f"✅ Digested: {os.path.basename(file_path)}")
+            return True
+            
+        except Exception as e:
+            logger.error(f"❌ Digestion Failed for {file_path}: {e}")
+            return False

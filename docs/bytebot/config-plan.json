@@ -1,0 +1,86 @@
+{
+  "title": "Bytebot 集成配置计划",
+  "version": "1.0",
+  "objectives": [
+    "将 Bytebot 作为桌面执行器融入现有 AGI 编排",
+    "实现 GUI 多步任务与文档处理",
+    "提供可观测与可复现的执行环境"
+  ],
+  "scope": {
+    "host": "Windows 10/11 with Docker Desktop (Linux containers)",
+    "desktop": "Ubuntu 22.04 XFCE",
+    "models": ["OpenAI", "Anthropic", "Gemini"]
+  },
+  "environment": {
+    "ports": {"desktop": 9990, "agent": 9991, "ui": 9992},
+    "database": {"image": "postgres:16-alpine", "name": "bytebotdb"},
+    "network": "docker bridge"
+  },
+  "security": {
+    "exposure": "intranet only",
+    "proxy_auth": true,
+    "secrets": "docker/.env",
+    "principle": "least privilege",
+    "volumes": {"ro_rw_separation": true}
+  },
+  "services": [
+    {"name": "bytebot-desktop", "port": 9990, "api": "computer-use"},
+    {"name": "bytebot-agent", "port": 9991, "api": "tasks"},
+    {"name": "bytebot-ui", "port": 9992, "ui": true},
+    {"name": "postgres", "port": 5432, "internal": true}
+  ],
+  "env_vars": {
+    "ANTHROPIC_API_KEY": "optional",
+    "OPENAI_API_KEY": "optional",
+    "GEMINI_API_KEY": "optional",
+    "DATABASE_URL": "postgresql://postgres:postgres@postgres:5432/bytebotdb",
+    "BYTEBOT_DESKTOP_BASE_URL": "http://bytebot-desktop:9990",
+    "BYTEBOT_AGENT_BASE_URL": "http://bytebot-agent:9991",
+    "BYTEBOT_DESKTOP_VNC_URL": "http://bytebot-desktop:9990/websockify"
+  },
+  "volumes": {
+    "input": {"host": "D:/AGI/input", "container": "/workspace/input", "mode": "ro"},
+    "output": {"host": "D:/AGI/output", "container": "/workspace/output", "mode": "rw"},
+    "logs": {"host": "D:/AGI/logs", "container": "/workspace/logs", "mode": "rw"}
+  },
+  "observability": {
+    "artifacts": ["screenshots", "recordings", "task_logs"],
+    "metrics": ["success_rate", "duration", "accuracy", "takeover_rate"],
+    "paths": {
+      "screenshots": "/workspace/logs/screenshots",
+      "recordings": "/workspace/logs/recordings",
+      "task_logs": "/workspace/logs/tasks"
+    }
+  },
+  "integration": {
+    "task_api": "http://localhost:9991/tasks",
+    "desktop_api": "http://localhost:9990/computer-use",
+    "trace_id": true,
+    "retry": {"max_attempts": 3, "backoff": "exponential"},
+    "takeover": {"enabled": true}
+  },
+  "milestones": [
+    {"name": "P0", "goals": ["本机启动", "示例任务成功"]},
+    {"name": "P1", "goals": ["适配器上线", "指标采集", "卷映射"]},
+    {"name": "P2", "goals": ["安全加固", "多实例并发", "Prompt 模板库"]},
+    {"name": "P3", "goals": ["远控宿主机方案", "合规审计"]}
+  ],
+  "risks": [
+    "UI 变化导致操作失败",
+    "登录失败或 2FA 受阻",
+    "长流程中断",
+    "敏感数据泄露"
+  ],
+  "rollback": {
+    "takeover": true,
+    "cancel_task": true,
+    "restore_snapshot": true,
+    "revert_volume_writes": true
+  },
+  "acceptance_criteria": [
+    "端口与服务联通检查通过",
+    "3 个示例任务成功率 ≥ 90%",
+    "日志与截图完整入库",
+    "安全清单全项合格"
+  ]
+}

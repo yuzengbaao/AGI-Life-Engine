@@ -1,0 +1,50 @@
+# AGI 自我修改失败原因查找报告 (Root Cause Analysis)
+
+## 1. 现象描述
+用户下达指令要求 AGI 修改 `core/motivation.py` 中的好奇心衰减参数。
+虽然 AGI 接收到了指令，并且修复了“目标劫持”问题（Priority Bypass），但代码文件实际上并未发生改变。
+
+## 2. 根本原因分析 (Root Cause)
+
+经过代码审查，问题出在 **`AGI_Life_Engine.py` 的 `_execute_task` 方法中的指令解析逻辑过于僵化**。
+
+### 逻辑漏洞：
+当前的代码依赖于**严格的前缀匹配**来触发系统工具：
+```python
+if intent_lower.startswith("write file"):
+    # ...
+if intent_lower.startswith("read file"):
+    # ...
+```
+
+### 故障重现：
+1. **输入指令**: "Task: Self-Modification. 1. Read 'core/motivation.py'..."
+2. **任务分解**: AGI 的规划器（Planner）可能会将这个复杂任务分解为自然语言步骤，例如：
+   - 步骤 1: "Read content of core/motivation.py"
+   - 步骤 2: "Modify the curiosity decay rate"
+   - 步骤 3: "Save the updated content to core/motivation.py"
+3. **匹配失败**:
+   - "Read content of..." **不以** "read file" 开头 -> 工具未触发。
+   - "Save the updated..." **不以** "write file" 开头 -> 工具未触发。
+   - "Modify..." -> 没有对应的工具逻辑 -> 只能空想（Thought only）。
+
+AGI 实际上是在“空想”执行这些步骤，在意识流中可能显示 "Executing...", 但因为没有触发 `SystemTools` 的硬编码钩子，物理文件从未被触碰。
+
+## 3. 解决方案 (Fix Plan)
+
+我们需要让 AGI 的执行层更智能，能够识别语义上的工具调用，或者强制规划器输出标准格式的指令。
+
+### 方案 A：增强正则匹配 (快速修复)
+将 `startswith` 改为更宽松的关键词包含检查，或者支持多种句式。
+例如：`if "read file" in intent_lower or "read" in intent_lower:` (需小心误触)
+
+### 方案 B：标准化规划器输出 (推荐)
+在 `_decompose_task` 的 Prompt 中明确要求：子任务必须使用标准格式，如 `TOOL: read file <path>`。
+
+### 方案 C：LLM 驱动的工具调用 (最终形态)
+在 `_execute_task` 中，如果正则匹配失败，再询问一次 LLM：“这句话是想调用工具吗？如果是，请输出函数调用格式。”
+
+## 4. 立即执行的修复
+我将采用 **方案 A + B 的混合策略**：
+1. 修改 `_execute_task`，放宽对 `write file` / `read file` 的匹配条件（只要包含核心意图关键词即可）。
+2. 在 `_decompose_task` 中提示 LLM 使用标准工具指令。

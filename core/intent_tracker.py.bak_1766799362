@@ -1,0 +1,123 @@
+import time
+import json
+import logging
+import asyncio
+from typing import List, Dict, Any, Optional
+from collections import deque
+from core.llm_client import LLMService
+
+# Configure logging
+logger = logging.getLogger("IntentTracker")
+
+class IntentTracker:
+    """
+    Tracks user actions and infers high-level intent using LLM analysis.
+    Acts as the 'Subconscious Inference Engine' for the AGI.
+    """
+    def __init__(self, history_size: int = 20):
+        self.action_history = deque(maxlen=history_size)
+        self.llm = LLMService()
+        self.current_hypothesis = None
+        self.last_inference_time = 0
+        self.inference_interval = 30.0  # Analyze every 30 seconds or when buffer fills
+        self.min_actions_for_inference = 3
+        
+        # Context State
+        self.active_application = "Unknown"
+        self.visual_context = "None"
+        
+    def add_observation(self, observation: Dict[str, Any]):
+        """
+        Ingest a new observation from any observer (CAD, Global, etc.).
+        """
+        timestamp = observation.get("timestamp", time.time())
+        action_text = observation.get("text") or observation.get("summary") or "Unknown Action"
+        
+        # Enriched entry
+        entry = {
+            "timestamp": timestamp,
+            "source": observation.get("type", "general"),
+            "content": action_text,
+            "details": observation.get("vlm_context", "")
+        }
+        
+        self.action_history.append(entry)
+        # logger.debug(f"Recorded action: {action_text}")
+        
+    def update_context(self, app_name: str, visual_summary: str = None):
+        """Update global context info."""
+        if app_name:
+            self.active_application = app_name
+        if visual_summary:
+            self.visual_context = visual_summary
+
+    async def infer_intent(self) -> Optional[str]:
+        """
+        Analyze recent history to infer user intent.
+        Returns the intent string if a new insight is found.
+        """
+        # 1. Check constraints
+        if len(self.action_history) < self.min_actions_for_inference:
+            return None
+            
+        time_since_last = time.time() - self.last_inference_time
+        # Only infer if enough time passed OR buffer is full-ish
+        if time_since_last < self.inference_interval:
+            return None
+
+        self.last_inference_time = time.time()
+        
+        # 2. Prepare Prompt
+        history_str = "\n".join([
+            f"- [{time.strftime('%H:%M:%S', time.localtime(e['timestamp']))}] ({e['source']}) {e['content']} {e['details']}"
+            for e in self.action_history
+        ])
+        
+        prompt = f"""
+You are the 'Subconscious Intent Analyst' of an AGI system.
+The user is currently working in: {self.active_application}.
+Visual Context: {self.visual_context}
+
+Recent User Actions:
+{history_str}
+
+Analyze this stream of behavior.
+1. What is the user trying to achieve? (The high-level goal)
+2. What pattern are they following?
+3. Predict their next likely step.
+
+Output a concise JSON object:
+{{
+  "intent": "High level goal description",
+  "confidence": 0.0-1.0,
+  "next_prediction": "Prediction of next action",
+  "suggestion": "How can the system help? (Optional)"
+}}
+"""
+
+        # 3. Call LLM
+        try:
+            # Using synchronous call for now
+            response = self.llm.chat_completion(
+                system_prompt="You are the 'Subconscious Intent Analyst' of an AGI system.",
+                user_prompt=prompt,
+                model=None # Use default
+            )
+            
+            # 4. Parse Response
+            # Simple cleanup for JSON parsing
+            clean_resp = response.strip()
+            if clean_resp.startswith("```json"):
+                clean_resp = clean_resp[7:-3]
+            elif clean_resp.startswith("```"):
+                clean_resp = clean_resp[3:-3]
+                
+            data = json.loads(clean_resp)
+            
+            self.current_hypothesis = data
+            logger.info(f"🧠 Inferred Intent: {data.get('intent')} (Conf: {data.get('confidence')})")
+            return data
+            
+        except Exception as e:
+            logger.error(f"Intent inference failed: {e}")
+            return None

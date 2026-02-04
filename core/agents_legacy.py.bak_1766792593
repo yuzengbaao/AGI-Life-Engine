@@ -1,0 +1,77 @@
+import time
+import json
+from typing import Dict, Any
+from core.llm_client import LLMService
+
+class AgentBase:
+    def __init__(self, name: str, role: str, llm: LLMService):
+        self.name = name
+        self.role = role
+        self.llm = llm
+
+    def process(self, input_data: Dict[str, Any]) -> Dict[str, Any]:
+        raise NotImplementedError
+
+class CodeGenerationAgent(AgentBase):
+    def __init__(self, llm: LLMService):
+        super().__init__("Coder_01", "Code Generator", llm)
+
+    def process(self, input_data: Dict[str, Any]) -> Dict[str, Any]:
+        """
+        Generate code using LLM based on strategy.
+        """
+        strategy = input_data.get('strategy', 'Standard')
+        complexity = input_data.get('complexity', 1.0)
+        
+        system_prompt = "You are an expert Python AGI developer. Write concise, high-performance Python code."
+        user_prompt = f"Generate a Python function implementation demonstrating the '{strategy}' strategy. Keep it under 10 lines."
+
+        response = self.llm.chat_completion(system_prompt, user_prompt)
+        
+        return {
+            "code_snippet": response,
+            "quality_score": 0.9, # Placeholder, could be self-assessed later
+            "agent_comment": f"Generated using {strategy}"
+        }
+
+class ArchitectureReviewAgent(AgentBase):
+    def __init__(self, llm: LLMService):
+        super().__init__("Reviewer_01", "Architecture Reviewer", llm)
+
+    def process(self, input_data: Dict[str, Any]) -> Dict[str, Any]:
+        """
+        Review code using LLM.
+        """
+        code = input_data.get('code_snippet', '')
+        
+        system_prompt = "You are a senior code reviewer. Analyze the code for safety and efficiency."
+        user_prompt = f"Review this code:\n```python\n{code}\n```\nStart your response with 'APPROVED' if it is safe, or 'REJECTED' if it has issues. Then explain briefly."
+
+        response = self.llm.chat_completion(system_prompt, user_prompt)
+        
+        approved = response.strip().upper().startswith("APPROVED")
+        
+        return {
+            "approved": approved,
+            "risk_level": "LOW" if approved else "HIGH",
+            "review_comment": response
+        }
+
+class AgentOrchestrator:
+    def __init__(self):
+        self.llm = LLMService()
+        self.coder = CodeGenerationAgent(self.llm)
+        self.reviewer = ArchitectureReviewAgent(self.llm)
+
+    def run_development_cycle(self, task_context: Dict[str, Any]) -> Dict[str, Any]:
+        # 1. Generate Code
+        code_result = self.coder.process(task_context)
+        
+        # 2. Review Code
+        review_result = self.reviewer.process(code_result)
+        
+        return {
+            "code": code_result,
+            "review": review_result,
+            "final_outcome": 1.0 if review_result['approved'] else 0.0
+        }

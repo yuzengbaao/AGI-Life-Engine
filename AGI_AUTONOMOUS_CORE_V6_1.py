@@ -45,8 +45,8 @@ class DeepSeekLLM:
         self._init_provider()
 
         # V6.1 新增：重试配置
-        self.max_retries = 3
-        self.base_retry_delay = 1  # 初始延迟 1 秒
+        self.max_retries = 2  # 减少重试次数避免长时间等待
+        self.base_retry_delay = 2  # 初始延迟 2 秒
         self.rate_limit_wait = 60  # 速率限制等待时间
 
     def _init_provider(self):
@@ -62,7 +62,7 @@ class DeepSeekLLM:
             self.client = openai.AsyncOpenAI(
                 api_key=api_key,
                 base_url="https://api.deepseek.com/v1",
-                timeout=30.0  # V6.1: 设置超时
+                timeout=120.0  # V6.1: 增加超时到 120 秒以支持大请求
             )
             self.model = os.getenv("DEEPSEEK_MODEL", "deepseek-chat")
 

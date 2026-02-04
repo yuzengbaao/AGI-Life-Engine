@@ -1,0 +1,579 @@
+"""
+跨会话记忆系统 - 图查询引擎
+Cross-Session Memory System - Graph Query Engine
+
+版本: 1.0.0
+日期: 2025-11-14
+阶段: Phase 3 - 知识图谱构建
+"""
+
+import logging
+from typing import List, Dict, Set, Optional, Any, Tuple
+import networkx as nx
+from core.knowledge_graph import ArchitectureKnowledgeGraph
+
+
+logger = logging.getLogger(__name__)
+
+
+class GraphQueryEngineError(Exception):
+    """图查询引擎异常"""
+
+
+class GraphQueryEngine:
+    """图查询引擎类"""
+
+    def __init__(self, knowledge_graph: ArchitectureKnowledgeGraph):
+        """
+        初始化图查询引擎
+
+        Args:
+            knowledge_graph: 知识图谱对象
+        """
+        # if not isinstance(knowledge_graph, ArchitectureKnowledgeGraph):
+        #    raise ValueError("knowledge_graph must be a ArchitectureKnowledgeGraph instance")
+
+        self.kg = knowledge_graph
+
+    # ==================== 路径查询 ====================
+
+    def find_shortest_path(
+        self, source: str, target: str, max_length: Optional[int] = None
+    ) -> Optional[List[str]]:
+        """
+        查找最短路径
+
+        Args:
+            source: 源节点ID
+            target: 目标节点ID
+            max_length: 最大路径长度限制
+
+        Returns:
+            路径节点列表,不存在返回None
+        """
+        source = source.lower()
+        target = target.lower()
+
+        if not self.kg.has_node(source):
+            raise GraphQueryEngineError(f"Source node {source} does not exist")
+        if not self.kg.has_node(target):
+            raise GraphQueryEngineError(f"Target node {target} does not exist")
+
+        try:
+            if max_length:
+                # 使用有限制的最短路径算法
+                path = nx.shortest_path(self.kg.graph, source, target, weight=None)
+                if len(path) - 1 > max_length:  # 路径长度=节点数-1
+                    return None
+                return path
+            else:
+                return nx.shortest_path(self.kg.graph, source, target)
+        except nx.NetworkXNoPath:
+            return None
+
+    def find_all_paths(
+        self,
+        source: str,
+        target: str,
+        max_length: int = 5,
+        cutoff: Optional[int] = None,
+    ) -> List[List[str]]:
+        """
+        查找所有路径
+
+        Args:
+            source: 源节点ID
+            target: 目标节点ID
+            max_length: 最大路径长度
+            cutoff: 路径数量限制
+
+        Returns:
+            路径列表
+        """
+        source = source.lower()
+        target = target.lower()
+
+        if not self.kg.has_node(source):
+            raise GraphQueryEngineError(f"Source node {source} does not exist")
+        if not self.kg.has_node(target):
+            raise GraphQueryEngineError(f"Target node {target} does not exist")
+
+        try:
+            paths = list(
+                nx.all_simple_paths(self.kg.graph, source, target, cutoff=max_length)
+            )
+
+            if cutoff:
+                paths = paths[:cutoff]
+
+            return paths
+        except nx.NetworkXNoPath:
+            return []
+
+    def find_paths_by_relation(
+        self, source: str, target: str, relation_types: List[str]
+    ) -> List[List[Dict[str, Any]]]:
+        """
+        按关系类型查找路径
+
+        Args:
+            source: 源节点ID
+            target: 目标节点ID
+            relation_types: 关系类型列表
+
+        Returns:
+            路径列表,每个路径包含边信息
+        """
+        source = source.lower()
+        target = target.lower()
+
+        all_paths = self.find_all_paths(source, target, max_length=5)
+        filtered_paths = []
+
+        for path in all_paths:
+            path_edges = []
+            valid = True
+
+            for i in range(len(path) - 1):
+                u, v = path[i], path[i + 1]
+                edge = self.kg.get_edge(u, v)
+
+                if edge and edge.get("relation_type") in relation_types:
+                    path_edges.append(
+                        {"source": u, "target": v, "relation": edge["relation_type"]}
+                    )
+                else:
+                    valid = False
+                    break
+
+            if valid:
+                filtered_paths.append(path_edges)
+
+        return filtered_paths
+
+    # ==================== N跳邻居查询 ====================
+
+    def get_n_hop_neighbors(
+        self, node_id: str, n: int = 1, direction: str = "both"
+    ) -> Dict[int, Set[str]]:
+        """
+        获取N跳邻居
+
+        Args:
+            node_id: 节点ID
+            n: 跳数
+            direction: 方向 ("in"/"out"/"both")
+
+        Returns:
+            邻居字典 {1: {nodes}, 2: {nodes}, ...}
+        """
+        node_id = node_id.lower()
+
+        if not self.kg.has_node(node_id):
+            raise GraphQueryEngineError(f"Node {node_id} does not exist")
+
+        if n < 1:
+            raise ValueError("n must be >= 1")
+
+        # 根据方向选择图
+        if direction == "out":
+            graph = self.kg.graph
+        elif direction == "in":
+            graph = self.kg.graph.reverse()
+        else:  # both
+            graph = self.kg.graph.to_undirected()
+
+        neighbors_by_hop = {}
+        visited = {node_id}
+
+        for hop in range(1, n + 1):
+            current_level = set()
+
+            # 获取上一跳的节点(第一跳从起始节点开始)
+            if hop == 1:
+                prev_level = {node_id}
+            else:
+                prev_level = neighbors_by_hop[hop - 1]
+
+            # 扩展邻居
+            for node in prev_level:
+                for neighbor in graph.neighbors(node):
+                    if neighbor not in visited:
+                        current_level.add(neighbor)
+                        visited.add(neighbor)
+
+            neighbors_by_hop[hop] = current_level
+
+        return neighbors_by_hop
+
+    def get_common_neighbors(
+        self, node1: str, node2: str, direction: str = "both"
+    ) -> Set[str]:
+        """
+        获取共同邻居
+
+        Args:
+            node1: 节点1 ID
+            node2: 节点2 ID
+            direction: 方向
+
+        Returns:
+            共同邻居集合
+        """
+        node1 = node1.lower()
+        node2 = node2.lower()
+
+        neighbors1 = self.kg.get_neighbors(node1, direction)
+        neighbors2 = self.kg.get_neighbors(node2, direction)
+
+        if direction == "both":
+            set1 = set(neighbors1["in"] + neighbors1["out"])
+            set2 = set(neighbors2["in"] + neighbors2["out"])
+        elif direction == "in":
+            set1 = set(neighbors1["in"])
+            set2 = set(neighbors2["in"])
+        else:  # out
+            set1 = set(neighbors1["out"])
+            set2 = set(neighbors2["out"])
+
+        return set1 & set2
+
+    # ==================== 图算法 ====================
+
+    def calculate_pagerank(
+        self, max_iter: int = 100, tol: float = 1e-6
+    ) -> Dict[str, float]:
+        """
+        计算PageRank
+
+        Args:
+            max_iter: 最大迭代次数
+            tol: 容差
+
+        Returns:
+            PageRank分数字典
+        """
+        try:
+            return nx.pagerank(self.kg.graph, max_iter=max_iter, tol=tol)
+        except nx.PowerIterationFailedConvergence:
+            logger.warning("PageRank did not converge")
+            return {}
+
+    def calculate_betweenness_centrality(
+        self, normalized: bool = True
+    ) -> Dict[str, float]:
+        """
+        计算介数中心性
+
+        Args:
+            normalized: 是否归一化
+
+        Returns:
+            介数中心性字典
+        """
+        return nx.betweenness_centrality(self.kg.graph, normalized=normalized)
+
+    def calculate_closeness_centrality(
+        self, distance: Optional[str] = None
+    ) -> Dict[str, float]:
+        """
+        计算紧密中心性
+
+        Args:
+            distance: 距离权重属性名
+
+        Returns:
+            紧密中心性字典
+        """
+        return nx.closeness_centrality(self.kg.graph, distance=distance)
+
+    def calculate_degree_centrality(self) -> Dict[str, float]:
+        """
+        计算度中心性
+
+        Returns:
+            度中心性字典
+        """
+        return nx.degree_centrality(self.kg.graph)
+
+    def get_centrality_scores(self) -> Dict[str, Dict[str, float]]:
+        """
+        获取所有中心性指标
+
+        Returns:
+            中心性指标字典
+        """
+        return {
+            "pagerank": self.calculate_pagerank(),
+            "betweenness": self.calculate_betweenness_centrality(),
+            "closeness": self.calculate_closeness_centrality(),
+            "degree": self.calculate_degree_centrality(),
+        }
+
+    # ==================== 社区发现 ====================
+
+    def detect_communities_louvain(self) -> List[Set[str]]:
+        """
+        使用Louvain算法检测社区
+
+        Returns:
+            社区列表
+        """
+        try:
+            # NetworkX不直接支持Louvain,使用标签传播算法替代
+            undirected = self.kg.graph.to_undirected()
+            communities = nx.community.label_propagation_communities(undirected)
+            return [set(c) for c in communities]
+        except Exception as e:
+            logger.error(f"Community detection failed: {e}")
+            return []
+
+    def detect_communities_greedy(self) -> List[Set[str]]:
+        """
+        使用贪心模块度算法检测社区
+
+        Returns:
+            社区列表
+        """
+        try:
+            undirected = self.kg.graph.to_undirected()
+            communities = nx.community.greedy_modularity_communities(undirected)
+            return [set(c) for c in communities]
+        except Exception as e:
+            logger.error(f"Community detection failed: {e}")
+            return []
+
+    def calculate_modularity(self, communities: List[Set[str]]) -> float:
+        """
+        计算模块度
+
+        Args:
+            communities: 社区列表
+
+        Returns:
+            模块度值
+        """
+        undirected = self.kg.graph.to_undirected()
+        return nx.community.modularity(undirected, communities)
+
+    # ==================== 子图匹配 ====================
+
+    def find_nodes_by_attribute(self, attribute: str, value: Any) -> List[str]:
+        """
+        按属性查找节点
+
+        Args:
+            attribute: 属性名
+            value: 属性值
+
+        Returns:
+            匹配节点ID列表
+        """
+        matching_nodes = []
+
+        for node_id, node_data in self.kg.graph.nodes(data=True):
+            if node_data.get(attribute) == value:
+                matching_nodes.append(node_id)
+
+        return matching_nodes
+
+    def find_edges_by_attribute(
+        self, attribute: str, value: Any
+    ) -> List[Tuple[str, str, Dict[str, Any]]]:
+        """
+        按属性查找边
+
+        Args:
+            attribute: 属性名
+            value: 属性值
+
+        Returns:
+            匹配边列表 [(source, target, data), ...]
+        """
+        matching_edges = []
+
+        for u, v, edge_data in self.kg.graph.edges(data=True):
+            if edge_data.get(attribute) == value:
+                matching_edges.append((u, v, edge_data))
+
+        return matching_edges
+
+    def pattern_match_triangle(self) -> List[Tuple[str, str, str]]:
+        """
+        查找三角形模式(三个节点两两相连)
+
+        Returns:
+            三角形列表
+        """
+        undirected = self.kg.graph.to_undirected()
+        triangles = []
+
+        for node in undirected.nodes():
+            neighbors = list(undirected.neighbors(node))
+            for i, n1 in enumerate(neighbors):
+                for n2 in neighbors[i + 1 :]:
+                    if undirected.has_edge(n1, n2):
+                        triangle = tuple(sorted([node, n1, n2]))
+                        if triangle not in triangles:
+                            triangles.append(triangle)
+
+        return triangles
+
+    def pattern_match_star(self, center: str) -> List[str]:
+        """
+        查找星形模式(一个中心节点连接多个节点)
+
+        Args:
+            center: 中心节点ID
+
+        Returns:
+            叶子节点列表
+        """
+        center = center.lower()
+
+        if not self.kg.has_node(center):
+            raise GraphQueryEngineError(f"Node {center} does not exist")
+
+        neighbors = self.kg.get_neighbors(center, direction="both")
+        all_neighbors = set(neighbors["in"] + neighbors["out"])
+
+        return list(all_neighbors)
+
+    # ==================== 高级查询 ====================
+
+    def find_strongly_connected_components(self) -> List[Set[str]]:
+        """
+        查找强连通分量
+
+        Returns:
+            强连通分量列表
+        """
+        sccs = nx.strongly_connected_components(self.kg.graph)
+        return [set(c) for c in sccs]
+
+    def is_dag(self) -> bool:
+        """
+        检查是否为有向无环图(DAG)
+
+        Returns:
+            是否为DAG
+        """
+        return nx.is_directed_acyclic_graph(self.kg.graph)
+
+    def topological_sort(self) -> List[str]:
+        """
+        拓扑排序
+
+        Returns:
+            拓扑排序节点列表
+
+        Raises:
+            GraphQueryEngineError: 图不是DAG
+        """
+        if not self.is_dag():
+            raise GraphQueryEngineError("Graph is not a DAG")
+
+        return list(nx.topological_sort(self.kg.graph))
+
+    def calculate_clustering_coefficient(self, node_id: Optional[str] = None) -> float:
+        """
+        计算聚类系数
+
+        Args:
+            node_id: 节点ID(可选,None表示平均聚类系数)
+
+        Returns:
+            聚类系数
+        """
+        # 转换为无向简单图(clustering不支持MultiGraph)
+        undirected = self.kg.graph.to_undirected()
+        simple_graph = nx.Graph(undirected)
+
+        if node_id:
+            node_id = node_id.lower()
+            if not self.kg.has_node(node_id):
+                raise GraphQueryEngineError(f"Node {node_id} does not exist")
+            return nx.clustering(simple_graph, node_id)
+        else:
+            return nx.average_clustering(simple_graph)
+
+    def get_graph_density(self) -> float:
+        """
+        获取图密度
+
+        Returns:
+            图密度值
+        """
+        return nx.density(self.kg.graph)
+
+    def get_graph_diameter(self) -> int:
+        """
+        获取图直径(最长最短路径)
+
+        Returns:
+            图直径
+
+        Raises:
+            GraphQueryEngineError: 图不连通
+        """
+        undirected = self.kg.graph.to_undirected()
+
+        if not nx.is_connected(undirected):
+            raise GraphQueryEngineError("Graph is not connected")
+
+        return nx.diameter(undirected)
+
+
+# 示例用法
+if __name__ == "__main__":
+    from entity_extractor import Entity, EntityType
+    from relationship_builder import Relationship, RelationshipType
+
+    # 创建知识图谱
+    kg = KnowledgeGraph()
+
+    # 添加节点
+    entities = [
+        Entity(name="Python", entity_type=EntityType.TECHNOLOGY),
+        Entity(name="Django", entity_type=EntityType.TECHNOLOGY),
+        Entity(name="Flask", entity_type=EntityType.TECHNOLOGY),
+        Entity(name="Guido", entity_type=EntityType.PERSON),
+    ]
+
+    for e in entities:
+        kg.add_node(e)
+
+    # 添加边
+    relationships = [
+        Relationship(
+            source="Python",
+            target="Guido",
+            relation_type=RelationshipType.CREATED_BY,
+        ),
+        Relationship(
+            source="Django", target="Python", relation_type=RelationshipType.USES
+        ),
+        Relationship(
+            source="Flask", target="Python", relation_type=RelationshipType.USES
+        ),
+    ]
+
+    for r in relationships:
+        kg.add_edge(r)
+
+    # 创建查询引擎
+    engine = GraphQueryEngine(kg)
+
+    # 查找最短路径
+    path = engine.find_shortest_path("Django", "Guido")
+    print(f"最短路径: {path}")
+
+    # 计算PageRank
+    pagerank = engine.calculate_pagerank()
+    print(f"\nPageRank分数:")
+    for node, score in sorted(pagerank.items(), key=lambda x: x[1], reverse=True):
+        print(f"  {node}: {score:.4f}")
+
+    # 检测社区
+    communities = engine.detect_communities_greedy()
+    print(f"\n检测到 {len(communities)} 个社区")

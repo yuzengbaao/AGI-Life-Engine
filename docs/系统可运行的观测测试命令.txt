@@ -1,0 +1,186 @@
+❯ 当前如果我进行观测测试，我要运行哪些命令，在终端能够查询到过程进程结果？ 
+
+● 根据项目中的观测测试文件，我为您整理了可运行的观测测试命令：
+
+  📊 可用的观测测试
+
+  1. 双螺旋引擎测试（最基础）
+
+  # 直接运行（终端实时查看）
+  python test_double_helix.py
+
+  # 保存输出到文件
+  python test_double_helix.py > double_helix_test_output.txt 2>&1
+
+  # 同时查看终端和保存
+  python test_double_helix.py 2>&1 | tee double_helix_test_output.txt
+
+  功能：测试双螺旋引擎基本功能，展示50次决策的过程和统计
+
+  ---
+  2. V2涌现监控（推荐用于MVP）
+
+  # 运行V2涌现监控
+  python monitor_v2_emergence.py
+
+  # 保存完整输出
+  python monitor_v2_emergence.py > emergence_monitor_output.txt 2>&1
+
+  # 同时显示和保存
+  python monitor_v2_emergence.py 2>&1 | tee emergence_monitor_output.txt
+
+  功能：监控V2引擎的涌现性指标，实时跟踪决策质量
+
+  ---
+  3. 智能观察器
+
+  # 运行智能观察器
+  python intelligence_observation.py
+
+  # 保存输出
+  python intelligence_observation.py > observation_output.txt 2>&1
+
+  # 实时查看+保存
+  python intelligence_observation.py 2>&1 | tee observation_output.txt
+
+  功能：观察系统的智能表现和决策模式
+
+  ---
+  4. 长期智能监控
+
+  # 运行长期监控（可能需要较长时间）
+  python long_term_intelligence_monitor.py
+
+  # 后台运行（不阻塞终端）
+  python long_term_intelligence_monitor.py > long_term_monitor.log 2>&1 &
+
+  # 查看后台进程输出
+  tail -f long_term_monitor.log
+
+  功能：长期跟踪系统性能和智能发展
+
+  ---
+  5. MVP快速验证测试（最新）
+
+  # 使用V2适配器快速验证
+  python quick_mvp_test_v2.py
+
+  # 保存结果
+  python quick_mvp_test_v2.py > mvp_v2_results.txt 2>&1
+
+  # 实时查看
+  python quick_mvp_test_v2.py 2>&1 | tee mvp_v2_results.txt
+
+  功能：100次决策快速验证，显示质量提升和性能指标
+
+  ---
+  6. 完整烟雾测试（最全面）
+
+  # 运行完整烟雾测试
+  python smoke_test.py
+
+  # 保存详细报告
+  python smoke_test.py > smoke_test_full.txt 2>&1
+
+  # 实时查看+保存
+  python smoke_test.py 2>&1 | tee smoke_test_full.txt
+
+  功能：20项测试全面验证，包括模块导入、初始化、性能、边界条件等
+
+  ---
+  🎯 推荐的观测测试流程
+
+  方案A：快速验证（5分钟）
+
+  # 1. 运行V2快速验证
+  python quick_mvp_test_v2.py
+
+  # 2. 查看详细报告
+  cat docs/MVP_OPTIMIZATION_REPORT.md
+
+  方案B：完整观测（15分钟）
+
+  # 1. 运行烟雾测试
+  python smoke_test.py
+
+  # 2. 查看分析报告
+  cat docs/SMOKE_TEST_ANALYSIS.md
+
+  # 3. 运行V2涌现监控
+  python monitor_v2_emergence.py
+
+  方案C：实时监控（持续运行）
+
+  # 1. 启动长期监控（后台）
+  python long_term_intelligence_monitor.py > monitor.log 2>&1 &
+
+  # 2. 实时查看日志
+  tail -f monitor.log
+
+  # 3. 按Ctrl+C停止查看（监控继续运行）
+
+  ---
+  📈 实时查看输出的技巧
+
+  技巧1：使用tee同时显示和保存
+
+  python test_double_helix.py 2>&1 | tee output.txt
+
+  技巧2：使用tail -f实时追踪日志
+
+  # 先运行测试到后台
+  python monitor_v2_emergence.py > monitor.log 2>&1 &
+
+  # 然后实时查看
+  tail -f monitor.log
+
+  技巧3：使用less分页查看
+
+  python smoke_test.py 2>&1 | tee output.txt
+  # 测试完成后
+  less output.txt
+  # 按`q`退出
+
+  技巧4：过滤关键信息
+
+  # 只看错误信息
+  python smoke_test.py 2>&1 | grep -i "error\|fail"
+
+  # 只看关键指标
+  python smoke_test.py 2>&1 | grep -i "质量\|performance\|通过"
+
+  ---
+  🔍 进程管理命令
+
+  # 查看Python进程
+  ps aux | grep python
+
+  # 查看特定进程
+  ps aux | grep "monitor_v2_emergence"
+
+  # 终止进程（优雅退出）
+  kill <PID>
+
+  # 强制终止
+  kill -9 <PID>
+
+  # 后台运行并保存PID
+  python monitor_v2_emergence.py > monitor.log 2>&1 & echo $! > monitor.pid
+
+  # 使用PID终止
+  kill $(cat monitor.pid)
+
+  ---
+  💡 我的推荐
+
+  如果您想立即看到结果，我建议运行：
+
+  # 最全面的测试（10秒完成）
+  python smoke_test.py 2>&1 | tee smoke_test_results.txt
+
+  # 然后查看快速参考
+  cat docs/SMOKE_TEST_QUICK_REFERENCE.md
+
+  这会给您一个完整的系统健康检查，包括所有关键指标！
+
+  需要我帮您运行某个特定的测试吗？

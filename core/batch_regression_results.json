@@ -1,0 +1,233 @@
+{
+  "timestamp": "2026-01-17T22:10:16.083630",
+  "total_modules": 10,
+  "passed": 10,
+  "warned": 0,
+  "failed": 0,
+  "skipped": 0,
+  "pass_rate": "100.0%",
+  "total_duration_ms": 3477,
+  "avg_duration_ms": 347,
+  "details": [
+    {
+      "module": "core/math_utils.py",
+      "propose": {
+        "success": true,
+        "error": null,
+        "patch_lines": 10
+      },
+      "sandbox": {
+        "success": true,
+        "error": null
+      },
+      "apply": {
+        "success": true,
+        "error": null
+      },
+      "rollback": {
+        "success": true,
+        "error": null
+      },
+      "overall": "PASS",
+      "duration_ms": 46
+    },
+    {
+      "module": "core/event_bus.py",
+      "propose": {
+        "success": true,
+        "error": null,
+        "patch_lines": 10
+      },
+      "sandbox": {
+        "success": true,
+        "error": null
+      },
+      "apply": {
+        "success": true,
+        "error": null
+      },
+      "rollback": {
+        "success": true,
+        "error": null
+      },
+      "overall": "PASS",
+      "duration_ms": 71
+    },
+    {
+      "module": "core/checkpoint.py",
+      "propose": {
+        "success": true,
+        "error": null,
+        "patch_lines": 10
+      },
+      "sandbox": {
+        "success": true,
+        "error": null
+      },
+      "apply": {
+        "success": true,
+        "error": null
+      },
+      "rollback": {
+        "success": true,
+        "error": null
+      },
+      "overall": "PASS",
+      "duration_ms": 48
+    },
+    {
+      "module": "core/logger.py",
+      "propose": {
+        "success": true,
+        "error": null,
+        "patch_lines": 10
+      },
+      "sandbox": {
+        "success": true,
+        "error": null
+      },
+      "apply": {
+        "success": true,
+        "error": null
+      },
+      "rollback": {
+        "success": true,
+        "error": null
+      },
+      "overall": "PASS",
+      "duration_ms": 54
+    },
+    {
+      "module": "core/monitor.py",
+      "propose": {
+        "success": true,
+        "error": null,
+        "patch_lines": 10
+      },
+      "sandbox": {
+        "success": true,
+        "error": null
+      },
+      "apply": {
+        "success": true,
+        "error": null
+      },
+      "rollback": {
+        "success": true,
+        "error": null
+      },
+      "overall": "PASS",
+      "duration_ms": 86
+    },
+    {
+      "module": "core/metrics_tracker.py",
+      "propose": {
+        "success": true,
+        "error": null,
+        "patch_lines": 10
+      },
+      "sandbox": {
+        "success": true,
+        "error": null
+      },
+      "apply": {
+        "success": true,
+        "error": null
+      },
+      "rollback": {
+        "success": true,
+        "error": null
+      },
+      "overall": "PASS",
+      "duration_ms": 130
+    },
+    {
+      "module": "core/entropy_regulator.py",
+      "propose": {
+        "success": true,
+        "error": null,
+        "patch_lines": 10
+      },
+      "sandbox": {
+        "success": true,
+        "error": null
+      },
+      "apply": {
+        "success": true,
+        "error": null
+      },
+      "rollback": {
+        "success": true,
+        "error": null
+      },
+      "overall": "PASS",
+      "duration_ms": 100
+    },
+    {
+      "module": "core/motivation.py",
+      "propose": {
+        "success": true,
+        "error": null,
+        "patch_lines": 10
+      },
+      "sandbox": {
+        "success": true,
+        "error": null
+      },
+      "apply": {
+        "success": true,
+        "error": null
+      },
+      "rollback": {
+        "success": true,
+        "error": null
+      },
+      "overall": "PASS",
+      "duration_ms": 56
+    },
+    {
+      "module": "core/insight_utilities.py",
+      "propose": {
+        "success": true,
+        "error": null,
+        "patch_lines": 10
+      },
+      "sandbox": {
+        "success": true,
+        "error": null
+      },
+      "apply": {
+        "success": true,
+        "error": null
+      },
+      "rollback": {
+        "success": true,
+        "error": null
+      },
+      "overall": "PASS",
+      "duration_ms": 2814
+    },
+    {
+      "module": "core/topology_tools.py",
+      "propose": {
+        "success": true,
+        "error": null,
+        "patch_lines": 10
+      },
+      "sandbox": {
+        "success": true,
+        "error": null
+      },
+      "apply": {
+        "success": true,
+        "error": null
+      },
+      "rollback": {
+        "success": true,
+        "error": null
+      },
+      "overall": "PASS",
+      "duration_ms": 72
+    }
+  ]
+}

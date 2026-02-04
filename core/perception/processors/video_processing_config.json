@@ -1,0 +1,52 @@
+{
+  "video_processing": {
+    "input": {
+      "default_resolution": "1080p",
+      "supported_formats": ["mp4", "avi", "mov", "mkv"],
+      "max_file_size_mb": 1024
+    },
+    "frame_extraction": {
+      "fps": 30,
+      "resize_width": 640,
+      "resize_height": 480,
+      "color_space": "RGB"
+    },
+    "object_detection": {
+      "enabled": true,
+      "model_type": "yolov8",
+      "confidence_threshold": 0.5,
+      "nms_threshold": 0.4
+    },
+    "tracking": {
+      "enabled": true,
+      "max_age": 30,
+      "min_hits": 3,
+      "distance_threshold": 100
+    },
+    "scene_analysis": {
+      "enabled": true,
+      "motion_analysis": true,
+      "lighting_analysis": true,
+      "occlusion_analysis": true,
+      "crowd_analysis": true
+    },
+    "models": {
+      "spatial_temporal_cnn": {
+        "enabled": true,
+        "input_channels": 3,
+        "feature_dim": 512
+      },
+      "temporal_attention": {
+        "enabled": true,
+        "feature_dim": 512,
+        "num_heads": 8
+      }
+    },
+    "performance": {
+      "max_workers": 2,
+      "batch_size": 8,
+      "gpu_acceleration": true,
+      "memory_optimization": true
+    }
+  }
+}

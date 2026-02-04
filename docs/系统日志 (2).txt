@@ -1,0 +1,630 @@
+PS D:\TRAE_PROJECT\AGI> & d:/TRAE_PROJECT/AGI/.venv/Scripts/Activate.ps1
+(.venv) PS D:\TRAE_PROJECT\AGI> python AGI_Life_Engine.py                                          
+2026-01-17 20:04:18,921 - INFO - ✅ Whisper ASR模块已加载
+2026-01-17 20:04:18,921 - INFO - 使用默认音频处理配置
+2026-01-17 20:04:21,187 - INFO - ✅ Insight实用函数库已加载 - 提升Insight可执行性
+2026-01-17 20:04:38,546 - WARNING - From D:\TRAE_PROJECT\AGI\.venv\Lib\site-packages\tf_keras\src\losses.py:2976: The name tf.losses.sparse_softmax_cross_entropy is deprecated. Please use tf.compat.v1.losses.sparse_softmax_cross_entropy instead.
+
+   [System] 🧬 Initializing Organic Architecture (Learning Mode)...
+   [System] 📜 Constitution Loaded: TRAE AGI 2.1 (Constitutional)
+   [Input] Listener ready. You can type commands directly here (ignore log scrolling):
+2026-01-17 20:04:39,769 - INFO - Successfully initialized Chat provider: DASHSCOPE
+2026-01-17 20:04:40,057 - INFO - Successfully initialized Embedding provider: ZHIPU
+2026-01-17 20:04:40,059 - INFO - Loaded 0 skill(s) from D:\TRAE_PROJECT\AGI\memory/skills
+2026-01-17 20:04:40,383 - INFO - Successfully initialized Chat provider: DASHSCOPE
+2026-01-17 20:04:40,666 - INFO - Successfully initialized Embedding provider: ZHIPU
+2026-01-17 20:04:40,666 - INFO - 🔧 GlobalObserver 已创建 (OCR 将在首次使用时初始化)
+2026-01-17 20:04:40,983 - INFO - Successfully initialized Chat provider: DASHSCOPE
+2026-01-17 20:04:41,273 - INFO - Successfully initialized Embedding provider: ZHIPU
+2026-01-17 20:04:41,527 - INFO - Successfully initialized Chat provider: DASHSCOPE
+2026-01-17 20:04:41,828 - INFO - Successfully initialized Embedding provider: ZHIPU
+2026-01-17 20:04:44,266 - INFO - Successfully initialized Chat provider: DASHSCOPE
+2026-01-17 20:04:44,541 - INFO - Successfully initialized Embedding provider: ZHIPU
+2026-01-17 20:04:44,541 - INFO - 🧠 Initializing Enhanced Memory V2 at: D:\TRAE_PROJECT\AGI\memory_db
+2026-01-17 20:04:44,937 - INFO - ✅ Memory loaded. Active memories: 23212
+2026-01-17 20:04:44,937 - INFO - Initializing Biological Memory System on cpu...
+2026-01-17 20:04:44,952 - INFO - Load pretrained SentenceTransformer: all-MiniLM-L6-v2
+2026-01-17 20:04:45,110 - INFO - Brain weights loaded successfully.
+2026-01-17 20:04:46,191 - INFO - Topology graph loaded with 64990 nodes.
+2026-01-17 20:04:47,091 - INFO - Successfully initialized Chat provider: DASHSCOPE
+2026-01-17 20:04:47,397 - INFO - Successfully initialized Embedding provider: ZHIPU
+2026-01-17 20:04:47,825 - INFO - 📷 摄像头捕获初始化: device=0, resolution=1280x720, fps=30
+2026-01-17 20:04:47,825 - INFO - 🎤 麦克风捕获初始化: sample_rate=16000Hz, channels=1, chunk=0.03s
+2026-01-17 20:04:47,825 - INFO - 🎯 感知管理器初始化完成
+2026-01-17 20:04:49,165 - INFO - ✅ 摄像头已启动: 1280x720 @ 30fps
+2026-01-17 20:04:49,166 - INFO - 🎬 摄像头捕获循环已启动
+2026-01-17 20:04:49,207 - INFO - ✅ 麦克风已启动: 16000Hz, 1声道, blocksize=4096
+2026-01-17 20:04:49,208 - INFO - ⚙️ 感知处理循环已启动
+2026-01-17 20:04:49,208 - INFO - 🎤 初始化Whisper ASR引擎
+2026-01-17 20:04:49,208 - INFO -    - 模型: base
+2026-01-17 20:04:49,208 - INFO -    - 设备: cpu
+2026-01-17 20:04:49,208 - INFO -    - 语言: auto
+2026-01-17 20:04:49,208 - INFO -    - 优化版本: True
+2026-01-17 20:04:49,208 - INFO - 🎤 初始化流式Whisper ASR
+2026-01-17 20:04:49,210 - INFO -    - 块时长: 3.0s
+2026-01-17 20:04:49,210 - INFO -    - 重叠: 0.5s
+2026-01-17 20:04:49,210 - INFO -    - 采样率: 16000Hz
+2026-01-17 20:04:49,210 - INFO - ✅ 流式处理已启动
+2026-01-17 20:04:49,210 - INFO - ✅ 音频处理器已设置
+2026-01-17 20:04:49,210 - INFO - ✅ 感知系统监控扩展初始化完成
+2026-01-17 20:04:49,212 - INFO - ✅ 感知系统监控扩展已附加到监控层
+2026-01-17 20:04:49,216 - INFO - 🌑 影子执行器 (Shadow Runner) 已初始化: D:\TRAE_PROJECT\AGI\data/sandbox/shadow_realm
+2026-01-17 20:04:49,273 - INFO - 📂 Loading embedding model from local path: D:\TRAE_PROJECT\AGI\models\all-MiniLM-L6-v2
+2026-01-17 20:04:49,351 - INFO - Use pytorch device_name: cpu
+2026-01-17 20:04:49,381 - INFO - 🧠 Neural Memory initialized at ./memory_db
+2026-01-17 20:04:49,382 - INFO - ❤️ Value Network (Q-Learning) initialized.
+2026-01-17 20:04:49,453 - INFO - 🧠 MetaCognition initialized with adaptive horizon (default=500)
+2026-01-17 20:04:49,454 - INFO -    - 推理深度档位: 100/500/1000/2000
+2026-01-17 20:04:49,454 - INFO - ⚙️ Horizon updated to 50
+2026-01-17 20:04:49,454 - INFO - 🧪 研究实验室已初始化: D:\TRAE_PROJECT\AGI\data/sandbox
+2026-01-17 20:04:49,454 - INFO - 🧬 Evolution Controller Online. All Pillars Active. MetaCognition Enabled.
+2026-01-17 20:04:49,461 - INFO - [创造性融合] 初始化完成
+2026-01-17 20:04:49,463 - INFO - [创造性融合] 基础空间=8, 扩展空间=16
+2026-01-17 20:04:49,463 - INFO - [创造性融合] 🎯 分歧阈值=0.5 (降低以增加创造性触发率)
+2026-01-17 20:04:49,464 - INFO - [双螺旋v2] ✨ 创造性融合引擎已启用
+2026-01-17 20:04:49,464 - INFO - [互补分析] 初始化完成
+2026-01-17 20:04:49,464 - INFO - [互补分析] 窗口大小=100, 最少样本=10
+2026-01-17 20:04:49,464 - INFO - [互补分析] 平衡阈值=55.00000000000001%, 中性目标=30.0%
+2026-01-17 20:04:49,464 - INFO - [双螺旋v2] 🎯 互补分析器已启用
+2026-01-17 20:04:49,466 - INFO - [双螺旋v2] 系统A（TheSeed）已启用
+2026-01-17 20:04:49,491 - INFO - SelfReferentialFractalCore initialized: state_dim=64, fractal_depth=3, device=cpu
+2026-01-17 20:04:49,491 - INFO - FractalIntelligenceAdapter initialized
+2026-01-17 20:04:49,491 - INFO - [双螺旋v2] 系统B（分形智能）已启用
+2026-01-17 20:04:49,493 - INFO - [非线性融合] 引擎初始化完成
+2026-01-17 20:04:49,493 - INFO - [非线性融合] 交互强度=0.15
+2026-01-17 20:04:49,493 - INFO - [非线性融合] 互补强度=0.08
+2026-01-17 20:04:49,493 - INFO - [双螺旋v2] 非线性融合引擎已启用
+2026-01-17 20:04:49,494 - INFO - [元学习器] 初始化完成
+2026-01-17 20:04:49,494 - INFO - [元学习器] 学习率=0.01
+2026-01-17 20:04:49,494 - INFO - [元学习器] 优化间隔=20
+2026-01-17 20:04:49,494 - INFO - [元学习器] 策略=rule_based
+2026-01-17 20:04:49,494 - INFO - [双螺旋v2] 元学习器已启用
+2026-01-17 20:04:49,494 - INFO - [双螺旋v2] 引擎初始化完成
+2026-01-17 20:04:49,494 - INFO - [双螺旋v2] 融合模式=adaptive
+2026-01-17 20:04:49,496 - INFO - [双螺旋v2] 非线性=True, 元学习=True, 对话=False
+2026-01-17 20:04:49,497 - INFO - 🔗 ImmutableCoreBridge 初始化完成 - 系统: TRAE AGI
+2026-01-17 20:04:49,497 - INFO - ⚙️  速率限制已启用: 1000次/1.0秒
+2026-01-17 20:04:49,497 - INFO - ✅ 组件协调器初始化完成 (EventBus Enabled)
+2026-01-17 20:04:49,499 - INFO - 🔗 ToolExecutionBridge 已连接到 ComponentCoordinator
+2026-01-17 20:04:49,499 - INFO - ✅ 已注册 14 个工具的能力元数据
+2026-01-17 20:04:49,499 - INFO - ✅ ToolExecutionBridge 初始化完成
+2026-01-17 20:04:49,501 - INFO - 🌉 IntentDialogueBridge 初始化完成
+2026-01-17 20:04:49,501 - INFO -    - 数据目录(绝对路径): D:\TRAE_PROJECT\AGI\data\intent_bridge   
+2026-01-17 20:04:49,501 - INFO -    - 表面请求自动确认: True
+2026-01-17 20:04:49,506 - INFO - 🔧 M1M4Adapter initialized
+2026-01-17 20:04:49,506 - INFO - ============================================================      
+2026-01-17 20:04:49,507 - INFO - 初始化M1-M4分形AGI组件
+2026-01-17 20:04:49,507 - INFO - ============================================================      
+2026-01-17 20:04:49,507 - INFO -    [M1] 初始化MetaLearner...
+2026-01-17 20:04:49,507 - INFO - [元学习器] 初始化完成
+2026-01-17 20:04:49,507 - INFO - [元学习器] 学习率=0.01
+2026-01-17 20:04:49,507 - INFO - [元学习器] 优化间隔=20
+2026-01-17 20:04:49,507 - INFO - [元学习器] 策略=rule_based
+2026-01-17 20:04:49,507 - INFO -    [M1] ✅ MetaLearner已启动 (规则策略)
+2026-01-17 20:04:49,512 - INFO -    [M2] 初始化GoalQuestioner...
+2026-01-17 20:04:49,512 - INFO - 🎯 GoalQuestioner initialized (mode=suggest_only)
+2026-01-17 20:04:49,513 - INFO -    [M2] ✅ GoalQuestioner已启动 (冷却期: 300s)
+2026-01-17 20:04:49,518 - INFO -    [M3] 初始化SelfModifyingEngine...
+2026-01-17 20:04:49,518 - WARNING -    [M3] ⚠️  自修改引擎已启动 - 所有修改将经过沙箱测试
+2026-01-17 20:04:49,518 - INFO - 🔧 SelfModifyingEngine initialized (project_root=D:\TRAE_PROJECT\AGI)
+2026-01-17 20:04:49,518 - INFO -    [M3] ✅ SelfModifyingEngine已启动 (沙箱模式)
+2026-01-17 20:04:49,524 - INFO -    [M4] 初始化RecursiveSelfMemory...
+2026-01-17 20:04:49,524 - INFO - 🧠 RecursiveSelfMemory initialized (memory_dir=D:\TRAE_PROJECT\AGI\data\recursive_self_memory)
+2026-01-17 20:04:49,525 - WARNING - 元数据开销过高 (100.0%), 触发压缩
+2026-01-17 20:04:49,526 - INFO - 压缩了 2 条元数据
+2026-01-17 20:04:49,526 - WARNING - 元数据开销过高 (100.0%), 触发压缩
+2026-01-17 20:04:49,526 - INFO - 压缩了 0 条元数据
+2026-01-17 20:04:49,526 - INFO -    [M4] ✅ RecursiveSelfMemory已启动 (记忆数: 2)
+2026-01-17 20:04:49,526 - INFO - ============================================================      
+2026-01-17 20:04:49,527 - INFO - M1-M4组件初始化完成: 4/4 成功
+2026-01-17 20:04:49,527 - INFO - ============================================================      
+2026-01-17 20:04:49,527 - INFO -    [DEBUG] About to initialize Working Memory...
+   [System] ⌨️  Console Input Listener Online. Type 'help' for commands.
+   [System] 🧠 Connected to dashscope
+   [System] 🦾 Macro Automation System Online.
+   [KnowledgeGraph] Loaded 77495 nodes, 69 edges
+   [System] ✅ Enhanced Experience Memory V2 Online
+   [System] 🧠 Biological Memory Online (64990 nodes)
+   [System] 🕸️ Topology Memory Online
+   [System] 🧩 ARC Solver (Program Synthesis) Online.
+   [System] 🧠 NeuroSymbolic Bridge (Semantic Drift Detection) Online.
+   [Bridge] Hydrating from Knowledge Graph (77495 nodes)...
+   [System] 👂 Hearing (Whisper) & 👁️ Real-time Vision Online.
+   [System] 👁️ Vision & 🖐️ Manipulation Systems Online.
+   [System] 🌍 Global Awareness & Intent Tracking Online.
+   [System] 📐 Rule-Based Logic Engine (Recursive Flow) Online.
+   [System] 🤖 Agents (Planner, Executor, Critic) Active.
+   [Philosopher] ♻️  Soul state loaded. Iteration count: 100
+   [System] 🦉 Philosopher Component (Soul Evolution) Online.
+   [System] 🧬 Evolution Controller (Self-Modification & World Model) Online.
+   [System] 🛠️ Skill Manager (Dynamic Capability) Online.
+   [System] 🔬 Insight V-I-E Loop (Enhanced Validation) Online. Registered 89 system functions.    
+   [System] 🔍 Foraging Agent (Active Learning) Online.
+   [System] 🔥 Motivation Core (Maslow + Dopamine) Online.
+   [System] 🧬 Double Helix Engine V2 Online - Dual-System Decision Making Enabled.
+      [Helix] ⚡ System A (TheSeed) + System B (FractalIntelligence) Fusion Active
+   [System] 🛡️ Security Manager (System-Level) Online.
+   [System] 🧬 ImmutableCore Bridge Online - Core directives connected.
+   [System] 📌 Component Coordinator Online - EventBus Hub enabled.
+   [System] 🔧 Tool Execution Bridge Online - 14 tools documented, LLM capability injection ready. 
+   [System] 🔗 Intent Dialogue Bridge Online - Deep intent understanding enabled.
+   [System] 🔧 Bridge Auto Repair Online - Self-healing enabled (manual confirmation mode).        
+   [System] 🧬 M1-M4 Fractal AGI Components Integrated:
+      [M1] MetaLearner - 元参数优化器
+      [M2] GoalQuestioner - 目标质疑模块
+      [M3] SelfModifyingEngine - 架构自修改引擎
+      [M4] RecursiveSelfMemory - 递归自引用记忆系统
+   [DEBUG] About to initialize Working Memory...
+2026-01-17 20:04:49,531 - INFO -    [DEBUG] Working Memory module imported, creating instance...   
+   [DEBUG] Working Memory module imported, creating instance...
+2026-01-17 20:04:49,531 - INFO -    [System] [Intelligence Upgrade] Short-term Working Memory enabled
+   [System] [Intelligence Upgrade] Short-term Working Memory enabled
+2026-01-17 20:04:49,531 - INFO -    [DEBUG] About to initialize Entropy Regulator...
+   [DEBUG] About to initialize Entropy Regulator...
+2026-01-17 20:04:49,532 - INFO -    [DEBUG] Entropy Regulator module imported, creating instance...
+   [DEBUG] Entropy Regulator module imported, creating instance...
+2026-01-17 20:04:49,534 - INFO - [EntropyRegulator] 🔧 熵值调节器初始化完成
+2026-01-17 20:04:49,534 - INFO -    - 监控窗口: 50
+2026-01-17 20:04:49,534 - INFO -    - 警告阈值: 0.6
+2026-01-17 20:04:49,534 - INFO -    - 临界阈值: 0.75
+2026-01-17 20:04:49,534 - INFO -    - 短休息间隔: 1800s
+2026-01-17 20:04:49,535 - INFO -    - 长睡眠间隔: 14400s
+2026-01-17 20:04:49,535 - INFO -    [System] [Entropy Regulation] Entropy Regulator enabled (enhanced)
+   [System] [Entropy Regulation] Entropy Regulator enabled (enhanced thresholds)
+2026-01-17 20:04:49,536 - INFO -    [DEBUG] About to initialize Knowledge Graph Exporter...        
+   [DEBUG] About to initialize Knowledge Graph Exporter...
+2026-01-17 20:04:49,543 - INFO -    [DEBUG] Knowledge Graph Exporter module imported, creating instance...
+   [DEBUG] Knowledge Graph Exporter module imported, creating instance...
+2026-01-17 20:04:51,501 - INFO - ✅ 已加载 77495 个历史节点
+2026-01-17 20:04:51,503 - INFO - 📊 知识图谱导出器初始化完成 (v2.0 - 增强版)
+2026-01-17 20:04:51,503 - INFO -    - 输出目录: data\knowledge
+2026-01-17 20:04:51,503 - INFO -    - 导出间隔: 30秒
+2026-01-17 20:04:51,503 - INFO -    - 主文件: data\knowledge\arch_graph.json
+2026-01-17 20:04:51,503 - INFO -    - 已有节点: 77495
+2026-01-17 20:04:51,505 - INFO - 📊 知识图谱自动导出已启动
+2026-01-17 20:04:51,505 - INFO -    [System] [Knowledge Graph Exporter] Knowledge Graph Exporter enabled
+   [System] [Knowledge Graph Exporter] Knowledge Graph Exporter enabled
+2026-01-17 20:04:51,506 - INFO -    [DEBUG] About to initialize Reasoning Scheduler...
+   [DEBUG] About to initialize Reasoning Scheduler...
+2026-01-17 20:04:51,507 - INFO -    [DEBUG] Attempting to import ReasoningScheduler...
+2026-01-17 20:04:51,510 - INFO -    [DEBUG] ReasoningScheduler module imported, importing CausalReasoningEngine...
+2026-01-17 20:04:51,512 - INFO -    [DEBUG] Creating CausalReasoningEngine instance...
+   [DEBUG] Creating CausalReasoningEngine instance...
+2026-01-17 20:04:51,512 - INFO -    [DEBUG] CausalReasoningEngine created, creating ReasoningScheduler...
+   [DEBUG] CausalReasoningEngine created, creating ReasoningScheduler...
+2026-01-17 20:04:51,512 - INFO -    [DEBUG] ReasoningScheduler created, starting session...        
+2026-01-17 20:04:51,514 - INFO -    [DEBUG] Session started, Reasoning Scheduler initialization complete
+   [System] [Intelligence Upgrade Phase 2] Reasoning Scheduler enabled (max_depth=1000)
+2026-01-17 20:04:51,514 - INFO -    [DEBUG] About to initialize Phase 3 modules...
+   [DEBUG] About to initialize Phase 3 modules...
+   [DEBUG] BayesianWorldModel imported, importing HierarchicalGoalManager...
+   [DEBUG] HierarchicalGoalManager imported, importing CreativeExplorationEngine...
+   [System] [Intelligence Upgrade Phase 3] Bayesian World Model enabled
+  [GoalManager] Created goal: Goal(achieve_agi, level=lifetime, status=pending, progress=0.00)     
+   [System] [Intelligence Upgrade Phase 3] Hierarchical Goal Manager enabled
+   [System] [Intelligence Upgrade Phase 3] Creative Exploration Engine enabled
+   [DEBUG] About to initialize Phase 4 modules...
+   [DEBUG] MetaLearner imported, importing SelfImprovementEngine...
+   [DEBUG] SelfImprovementEngine imported, importing RecursiveSelfReferenceEngine...
+   [System] [Intelligence Upgrade Phase 4] Meta-Learner enabled
+  [SelfImprovement] Scanning project: D:\TRAE_PROJECT\AGI
+  [SelfImprovement] Scanned 9286 modules
+2026-01-17 20:05:42,685 - INFO - 🌌 Initiating Re-genesis: Checking Memory Anchors...
+2026-01-17 20:05:42,685 - INFO -   ✅ D:\TRAE_PROJECT\AGI\data\consciousness.json exists.
+2026-01-17 20:05:42,685 - INFO -   ✅ cognitive_engine_state.json exists.
+2026-01-17 20:05:42,686 - INFO - 💤 Forcing Dream Consolidation to break evolutionary stagnation...
+2026-01-17 20:05:42,686 - INFO - 🌌 EvolutionController: Triggering Manual Consolidation...        
+2026-01-17 20:05:42,687 - INFO - ✨ Re-genesis Complete. System Integrity Restored.
+2026-01-17 20:05:42,693 - INFO - 正在初始化 PaddleOCR (首次使用，可能需要几秒钟)...
+2026-01-17 20:05:42,693 - WARNING - ⚠️ PaddleOCR is running in MOCK mode (Bridge Module). OCR featuures will return empty results. Install paddleocr for full functionality: pip install paddleocr paddlepaddle
+2026-01-17 20:05:42,694 - INFO - ✅ Global Vision initialized (PaddleOCR).
+2026-01-17 20:05:42,896 - INFO - 🎯 新目标创建: [22ffb28b] 对检索调参与覆盖率评估：将 rag_topk 从 3 提高到 5，对比命中率/准确度；补充 data/ 中缺口资料
+2026-01-17 20:05:42,896 - INFO - ▶️ 开始执行: [22ffb28b] 对检索调参与覆盖率评估：将 rag_topk 从 3   提高到 5，对比命中率/准确度；补充 data/ 中缺口资料 (尝试 1/3)
+   [System] [Intelligence Upgrade Phase 4] Self-Improvement Engine enabled
+   [System] [Intelligence Upgrade Phase 4] Recursive Self-Reference enabled
+   [System] 🧠 Meta-Cognitive Layer Online - Self-Reflection Enabled
+      [MetaCog] ✅ Task Understanding Depth Evaluator
+      [MetaCog] ✅ Capability Matcher
+      [MetaCog] ✅ Failure Attribution Engine
+[ArchitectureAwareness] 🏗️  初始化完成
+   项目根目录: D:\TRAE_PROJECT\AGI
+   [System] 🏗️  Architecture Awareness Layer Online - Self-Understanding Enabled
+      [ArchAware] ✅ Component Dependency Mapper
+      [ArchAware] ✅ Performance Bottleneck Analyzer
+      [ArchAware] ✅ Architecture Health Monitor
+   [StartupHooks] 🚀 执行启动钩子...
+   [StartupHooks] 📚 加载文档索引 (19074 个文件, 生成于 2026-01-17T18:46:07.748853)
+   [StartupHooks] 📊 已加载 55 个目录节点到知识图谱
+   [StartupHooks] ✅ 完成 1/1 个启动任务
+   [System] 🚀 Startup Hooks Complete - 1 tasks executed
+   [System] 🚀 AGI Life Engine Started (Organic Mode)
+   [System] 🌌 Initiating System Re-genesis...
+
+   [System] ⏱️ Tick 1 | Cycle: 1 | Drive: MAINTAIN
+   [Global] 🌍 User Focus: AGI - Visual Studio Code (Code.exe)
+   [Goal] 💤 Idle. Generating new directive...
+   [Strategy] 🦅 Executing Strategic Task: 对检索调参与覆盖率评估：将 rag_topk 从 3 提高到 5，对比 命中率/准确度；补充 data/ 中缺口资料
+   [Goal] 🌟 New Goal Set: 对检索调参与覆盖率评估：将 rag_topk 从 3 提高到 5，对比命中率/准确度；补充 data/ 中缺口资料 (Type: analysis)
+   [System] 🔄 检测到目标变更，重置执行计划。
+Batches: 100%|██████████████████████████████████████████████████████| 1/1 [00:00<00:00,  8.38it/s] 
+   [Planner] 🧠 Recalled 1 memories for context.
+   [Planner] 🤔 正在为目标制定策略: 对检索调参与覆盖率评估：将 rag_topk 从 3 提高到 5，对比命中率/ 准确度；补充 data/ 中缺口资料
+   [WorldModel] 🔮 Unable to predict (no sufficient data)
+   [Reasoning] 🧠 Attempting deep causal reasoning...
+   [Reasoning] ⚠️ Low confidence (0.50), falling back to LLM planner
+   [MetaCog] 🧠 启动元认知评估...
+
+======================================================================
+[Meta-Cognitive Layer] 任务执行前评估
+======================================================================
+任务: 对检索调参与覆盖率评估：将 rag_topk 从 3 提高到 5，对比命中率/准确度；补充 data/ 中缺口资料  
+
+[步骤 1/3] 评估任务理解深度...
+
+============================================================
+[MetaCognitive] 任务理解深度评估
+============================================================
+任务描述: 对检索调参与覆盖率评估：将 rag_topk 从 3 提高到 5，对比命中率/准确度；补充 data/ 中缺口资料
+
+────────────────────────────────────────────────────────────
+[评估结果]
+────────────────────────────────────────────────────────────
+理解深度: shallow
+置信度:   0.50
+可行性:   ✅ 可行
+复杂度:   easy
+
+知识缺口:
+  • 缺少数学建模知识
+
+建议方法:
+  1. 直接执行任务
+
+============================================================
+[MetaCognitive] ✅ 系统自我评估: 该任务在能力范围内
+
+[步骤 2/3] 评估能力匹配...
+
+============================================================
+[MetaCognitive] 能力匹配分析
+============================================================
+任务描述: 对检索调参与覆盖率评估：将 rag_topk 从 3 提高到 5，对比命中率/准确度；补充 data/ 中缺口资料
+
+────────────────────────────────────────────────────────────
+[匹配结果]
+────────────────────────────────────────────────────────────
+匹配等级: perfect
+置信度:   0.88
+匹配能力: 2项
+缺失能力: 0项
+
+✅ 已匹配能力:
+  • 数据科学 (强度: 0.75)
+  • 数据科学 (强度: 0.75)
+
+💡 替代方案:
+  1. 将任务分解为更小的子任务
+  2. 寻求外部专业知识或工具
+
+============================================================
+[MetaCognitive] ✅ 系统能力充分: 可以尝试处理该任务
+[MetaCognitive] 📊 能力匹配度: 88.25%
+
+[步骤 3/3] 生成综合决策...
+
+──────────────────────────────────────────────────────────────────────
+[元认知分析报告]
+──────────────────────────────────────────────────────────────────────
+
+⚠️ 决策结果: PROCEED_WITH_CAUTION
+📊 综合置信度: 58.36%
+🎯 预估成功概率: 58.36%
+
+🔗 推理链:
+  1. 任务理解评估：理解深度不足
+  2. 理解等级：shallow
+
+⚠️ 警告:
+  ⚠️ 系统对任务的理解可能不完整
+  知识缺口：缺少数学建模知识
+
+💡 建议:
+  1. 建议：提供更多上下文信息
+  2. 建议：将任务描述得更具体
+  3. 建议：分步骤明确需求
+
+📋 评估摘要:
+  • 任务理解: shallow (置信度: 50.00%)
+  • 能力匹配: perfect (置信度: 88.25%)
+  • 匹配能力: 2项
+  • 缺失能力: 0项
+
+======================================================================
+[Meta-Cognitive] ⚠️ 系统建议谨慎执行，注意潜在风险
+   [MetaCog] ⚠️ 谨慎执行模式: 置信度 58.36%
+   [Planner] 💭 Analyzing task complexity: 对检索调参与覆盖率评估：将 rag_topk 从 3 提高到 5，对比 命中率/准确度；补充 data/ 中缺口资料
+Batches: 100%|██████████████████████████████████████████████████████| 1/1 [00:00<00:00, 84.47it/s] 
+2026-01-17 20:05:43,129 - INFO - [InsightPromptEnhancer] Global enhancer initialized
+2026-01-17 20:06:06,878 - INFO - HTTP Request: POST https://dashscope.aliyuncs.com/compatible-mode/v1/chat/completions "HTTP/1.1 200 OK"
+2026-01-17 20:06:06,890 - INFO - [InsightPromptEnhancer] Prompt enhanced with utilities guide
+2026-01-17 20:06:07,605 - INFO - HTTP Request: POST https://dashscope.aliyuncs.com/compatible-mode/v1/chat/completions "HTTP/1.1 200 OK"
+2026-01-17 20:06:07,642 - INFO - [DEBUG-AWARENESS] _compute_self_awareness output shape: torch.Size([1, 64])
+2026-01-17 20:06:07,645 - INFO - [DEBUG-AWARENESS] self_awareness min: 0.498684
+2026-01-17 20:06:07,646 - INFO - [DEBUG-AWARENESS] self_awareness max: 0.500995
+2026-01-17 20:06:07,649 - INFO - [DEBUG-AWARENESS] self_awareness mean: 0.499999
+2026-01-17 20:06:07,651 - INFO - [DEBUG-AWARENESS] self_awareness std: 0.000318
+2026-01-17 20:06:07,683 - INFO - [DEBUG-B1] meta.self_awareness shape: torch.Size([1, 64])
+2026-01-17 20:06:07,685 - INFO - [DEBUG-B1] meta.self_awareness dtype: torch.float32
+2026-01-17 20:06:07,685 - INFO - [DEBUG-B1] meta.self_awareness device: cpu
+2026-01-17 20:06:07,701 - INFO - [DEBUG-B1] meta.self_awareness raw values:
+tensor([[0.5001, 0.5000, 0.4998, 0.5001, 0.5001, 0.4996, 0.5002, 0.5000, 0.5000,
+         0.5001, 0.5000, 0.5000, 0.5000, 0.5000, 0.4996, 0.4995, 0.4999, 0.5001,
+         0.5001, 0.5000, 0.4996, 0.5001, 0.5003, 0.5010, 0.5003, 0.4999, 0.5003,
+         0.4999, 0.5004, 0.5000, 0.5001, 0.4997, 0.5007, 0.4996, 0.5001, 0.5000,
+         0.5004, 0.4999, 0.5000, 0.5000, 0.5003, 0.5000, 0.5003, 0.4997, 0.4996,
+         0.5000, 0.5000, 0.4987, 0.5001, 0.5000, 0.5000, 0.5004, 0.4995, 0.5000,
+         0.4996, 0.4999, 0.5002, 0.4997, 0.5001, 0.5001, 0.5000, 0.4998, 0.5003,
+         0.5002]])
+2026-01-17 20:06:07,701 - INFO - [DEBUG-B1] self_awareness min: 0.498684
+2026-01-17 20:06:07,701 - INFO - [DEBUG-B1] self_awareness max: 0.500995
+2026-01-17 20:06:07,701 - INFO - [DEBUG-B1] self_awareness std: 0.000318
+2026-01-17 20:06:07,701 - INFO - [DEBUG-B1] self_awareness.mean() BEFORE final: 0.499999
+2026-01-17 20:06:07,701 - INFO - [DEBUG-B1] confidence_old (self_awareness.mean()): 0.499999       
+2026-01-17 20:06:07,702 - INFO - [DEBUG-B1] confidence_NEW (goal_score): 0.644020
+2026-01-17 20:06:07,702 - INFO - [DEBUG-B1] entropy: -0.000000
+2026-01-17 20:06:07,702 - INFO - [DEBUG-B1] goal_score: 0.6440195441246033
+2026-01-17 20:06:07,702 - INFO - [DEBUG-B1] FINAL confidence: 0.644020
+2026-01-17 20:06:07,704 - INFO - [DEBUG-B3] Returning to double_helix: action=0, confidence=0.644020
+2026-01-17 20:06:07,704 - INFO - [智能融合] 🎯 选择系统B（擅长区域）: 当前置信度: B=0.644 >> A=0.288
+   [Planner] 💭 📊 Task complexity: 0.40 → Max plan steps: 10 (自主决策)
+   [Planner] 💭 Plan created with 27 steps (max allowed: 10).
+   [Planner] 📋 计划生成完毕 (共 10 步)。
+   [Executor] 👉 执行步骤 1/10: {"tool": "log", "args": {"message": "Starting RAG parameter tuning and coverage evaluation task."}}
+   [Helix] 🧬 Decision Enhancement Active:
+      Confidence: 0.64 | Method: complementary_selection_B
+      Emergence: 0.000 | Preference: B
+Batches: 100%|██████████████████████████████████████████████████████| 1/1 [00:00<00:00, 65.99it/s] 
+2026-01-17 20:06:07,725 - INFO - Starting consolidation of 1 memories...
+2026-01-17 20:06:07,853 - INFO - Growing topology connections for 1 new nodes...
+2026-01-17 20:06:07,878 - INFO - Rescued 1 isolated nodes by force-connecting to nearest neighbors.
+2026-01-17 20:06:10,898 - INFO - Brain state saved.
+   [Executor] 💭 Received order: {"tool": "log", "args": {"message": "Starting RAG parameter tuning and coverage evaluation task."}}
+   [Executor] 💭 🔨 Invoking Tool: log | Args: {'message': 'Starting RAG parameter tuning and coverage evaluation task.'}
+   [Executor] 💭 📝 OBSERVED: Starting RAG parameter tuning and coverage evaluation task.
+   [Executor] 💭    ↳ Result: Logged: Starting RAG parameter tuning and coverage evaluation task.  
+Batches: 100%|██████████████████████████████████████████████████████| 1/1 [00:00<00:00, 70.91it/s]
+2026-01-17 20:06:14,198 - INFO - Brain state saved.
+   [Critic] 🧐 评分: 1.00
+Batches: 100%|██████████████████████████████████████████████████████| 1/1 [00:00<00:00, 20.93it/s]
+2026-01-17 20:06:17,613 - INFO - Brain state saved.
+2026-01-17 20:06:28,958 - INFO - 🎯 任务复杂度: 0.000 → 推理深度: 100 (shallow)
+2026-01-17 20:06:29,053 - WARNING - ⚠️ 假收敛检测: 变化低(0.43488)但不确定性高(0.334), 继续推理
+2026-01-17 20:06:29,055 - WARNING - ⚠️ 假收敛检测: 变化低(0.38969)但不确定性高(0.334), 继续推理
+2026-01-17 20:06:29,057 - WARNING - ⚠️ 假收敛检测: 变化低(0.37284)但不确定性高(0.333), 继续推理    
+2026-01-17 20:06:29,059 - WARNING - ⚠️ 假收敛检测: 变化低(0.34647)但不确定性高(0.334), 继续推理    
+2026-01-17 20:06:29,063 - WARNING - ⚠️ 假收敛检测: 变化低(0.33053)但不确定性高(0.334), 继续推理    
+2026-01-17 20:06:29,067 - WARNING - ⚠️ 假收敛检测: 变化低(0.32914)但不确定性高(0.335), 继续推理    
+2026-01-17 20:06:29,070 - WARNING - ⚠️ 假收敛检测: 变化低(0.30745)但不确定性高(0.335), 继续推理    
+2026-01-17 20:06:29,075 - WARNING - ⚠️ 假收敛检测: 变化低(0.28080)但不确定性高(0.335), 继续推理    
+2026-01-17 20:06:29,078 - WARNING - ⚠️ 假收敛检测: 变化低(0.26809)但不确定性高(0.334), 继续推理
+2026-01-17 20:06:29,082 - WARNING - ⚠️ 假收敛检测: 变化低(0.25946)但不确定性高(0.334), 继续推理    
+2026-01-17 20:06:29,087 - WARNING - ⚠️ 假收敛检测: 变化低(0.25059)但不确定性高(0.334), 继续推理    
+2026-01-17 20:06:29,089 - WARNING - ⚠️ 假收敛检测: 变化低(0.25150)但不确定性高(0.334), 继续推理    
+2026-01-17 20:06:29,092 - WARNING - ⚠️ 假收敛检测: 变化低(0.24220)但不确定性高(0.335), 继续推理
+2026-01-17 20:06:29,094 - WARNING - ⚠️ 假收敛检测: 变化低(0.22587)但不确定性高(0.335), 继续推理    
+2026-01-17 20:06:29,099 - WARNING - ⚠️ 假收敛检测: 变化低(0.21667)但不确定性高(0.334), 继续推理    
+2026-01-17 20:06:29,100 - WARNING - ⚠️ 假收敛检测: 变化低(0.21236)但不确定性高(0.334), 继续推理    
+2026-01-17 20:06:29,105 - WARNING - ⚠️ 假收敛检测: 变化低(0.20881)但不确定性高(0.334), 继续推理    
+2026-01-17 20:06:29,110 - WARNING - ⚠️ 假收敛检测: 变化低(0.21144)但不确定性高(0.334), 继续推理
+2026-01-17 20:06:29,113 - WARNING - ⚠️ 假收敛检测: 变化低(0.20922)但不确定性高(0.335), 继续推理    
+2026-01-17 20:06:29,114 - WARNING - ⚠️ 假收敛检测: 变化低(0.20111)但不确定性高(0.335), 继续推理    
+2026-01-17 20:06:29,118 - WARNING - ⚠️ 假收敛检测: 变化低(0.19496)但不确定性高(0.335), 继续推理    
+2026-01-17 20:06:29,119 - WARNING - ⚠️ 假收敛检测: 变化低(0.19099)但不确定性高(0.335), 继续推理    
+2026-01-17 20:06:29,122 - WARNING - ⚠️ 假收敛检测: 变化低(0.18838)但不确定性高(0.334), 继续推理    
+2026-01-17 20:06:29,125 - WARNING - ⚠️ 假收敛检测: 变化低(0.18918)但不确定性高(0.335), 继续推理
+2026-01-17 20:06:29,128 - WARNING - ⚠️ 假收敛检测: 变化低(0.18823)但不确定性高(0.335), 继续推理    
+2026-01-17 20:06:29,130 - WARNING - ⚠️ 假收敛检测: 变化低(0.18380)但不确定性高(0.335), 继续推理    
+2026-01-17 20:06:29,133 - WARNING - ⚠️ 假收敛检测: 变化低(0.17886)但不确定性高(0.335), 继续推理    
+2026-01-17 20:06:29,136 - WARNING - ⚠️ 假收敛检测: 变化低(0.17414)但不确定性高(0.335), 继续推理    
+2026-01-17 20:06:29,138 - WARNING - ⚠️ 假收敛检测: 变化低(0.17053)但不确定性高(0.335), 继续推理    
+2026-01-17 20:06:29,140 - WARNING - ⚠️ 假收敛检测: 变化低(0.16891)但不确定性高(0.335), 继续推理
+2026-01-17 20:06:29,145 - WARNING - ⚠️ 假收敛检测: 变化低(0.16745)但不确定性高(0.335), 继续推理    
+2026-01-17 20:06:29,150 - WARNING - ⚠️ 假收敛检测: 变化低(0.16479)但不确定性高(0.335), 继续推理    
+2026-01-17 20:06:29,153 - WARNING - ⚠️ 假收敛检测: 变化低(0.16080)但不确定性高(0.335), 继续推理    
+2026-01-17 20:06:29,160 - WARNING - ⚠️ 假收敛检测: 变化低(0.15611)但不确定性高(0.335), 继续推理
+2026-01-17 20:06:29,164 - WARNING - ⚠️ 假收敛检测: 变化低(0.15211)但不确定性高(0.335), 继续推理    
+2026-01-17 20:06:29,167 - WARNING - ⚠️ 假收敛检测: 变化低(0.14920)但不确定性高(0.335), 继续推理    
+2026-01-17 20:06:29,171 - WARNING - ⚠️ 假收敛检测: 变化低(0.14699)但不确定性高(0.335), 继续推理
+2026-01-17 20:06:29,174 - WARNING - ⚠️ 假收敛检测: 变化低(0.14496)但不确定性高(0.335), 继续推理    
+2026-01-17 20:06:29,177 - WARNING - ⚠️ 假收敛检测: 变化低(0.14215)但不确定性高(0.335), 继续推理    
+2026-01-17 20:06:29,180 - WARNING - ⚠️ 假收敛检测: 变化低(0.13848)但不确定性高(0.335), 继续推理    
+2026-01-17 20:06:29,181 - WARNING - ⚠️ 假收敛检测: 变化低(0.13487)但不确定性高(0.335), 继续推理    
+2026-01-17 20:06:29,184 - WARNING - ⚠️ 假收敛检测: 变化低(0.13174)但不确定性高(0.335), 继续推理
+2026-01-17 20:06:29,189 - WARNING - ⚠️ 假收敛检测: 变化低(0.12922)但不确定性高(0.335), 继续推理    
+2026-01-17 20:06:29,194 - WARNING - ⚠️ 假收敛检测: 变化低(0.12716)但不确定性高(0.335), 继续推理    
+2026-01-17 20:06:29,198 - WARNING - ⚠️ 假收敛检测: 变化低(0.12492)但不确定性高(0.335), 继续推理    
+2026-01-17 20:06:29,200 - WARNING - ⚠️ 假收敛检测: 变化低(0.12216)但不确定性高(0.335), 继续推理
+2026-01-17 20:06:29,206 - WARNING - ⚠️ 假收敛检测: 变化低(0.11914)但不确定性高(0.335), 继续推理    
+2026-01-17 20:06:29,210 - WARNING - ⚠️ 假收敛检测: 变化低(0.11622)但不确定性高(0.335), 继续推理    
+2026-01-17 20:06:29,212 - WARNING - ⚠️ 假收敛检测: 变化低(0.11368)但不确定性高(0.335), 继续推理    
+2026-01-17 20:06:29,216 - WARNING - ⚠️ 假收敛检测: 变化低(0.11153)但不确定性高(0.335), 继续推理    
+2026-01-17 20:06:29,219 - WARNING - ⚠️ 假收敛检测: 变化低(0.10950)但不确定性高(0.335), 继续推理
+2026-01-17 20:06:29,222 - WARNING - ⚠️ 假收敛检测: 变化低(0.10730)但不确定性高(0.335), 继续推理    
+2026-01-17 20:06:29,225 - WARNING - ⚠️ 假收敛检测: 变化低(0.10485)但不确定性高(0.335), 继续推理    
+2026-01-17 20:06:29,229 - WARNING - ⚠️ 假收敛检测: 变化低(0.10231)但不确定性高(0.335), 继续推理    
+2026-01-17 20:06:29,233 - WARNING - ⚠️ 假收敛检测: 变化低(0.09993)但不确定性高(0.335), 继续推理
+2026-01-17 20:06:29,237 - WARNING - ⚠️ 假收敛检测: 变化低(0.09781)但不确定性高(0.335), 继续推理    
+2026-01-17 20:06:29,238 - WARNING - ⚠️ 假收敛检测: 变化低(0.09588)但不确定性高(0.335), 继续推理    
+2026-01-17 20:06:29,241 - WARNING - ⚠️ 假收敛检测: 变化低(0.09399)但不确定性高(0.335), 继续推理    
+2026-01-17 20:06:29,245 - WARNING - ⚠️ 假收敛检测: 变化低(0.09197)但不确定性高(0.335), 继续推理    
+2026-01-17 20:06:29,248 - WARNING - ⚠️ 假收敛检测: 变化低(0.08984)但不确定性高(0.335), 继续推理
+2026-01-17 20:06:29,254 - WARNING - ⚠️ 假收敛检测: 变化低(0.08773)但不确定性高(0.335), 继续推理    
+2026-01-17 20:06:29,259 - WARNING - ⚠️ 假收敛检测: 变化低(0.08575)但不确定性高(0.335), 继续推理    
+2026-01-17 20:06:29,263 - WARNING - ⚠️ 假收敛检测: 变化低(0.08394)但不确定性高(0.335), 继续推理    
+2026-01-17 20:06:29,267 - WARNING - ⚠️ 假收敛检测: 变化低(0.08223)但不确定性高(0.335), 继续推理
+2026-01-17 20:06:29,274 - WARNING - ⚠️ 假收敛检测: 变化低(0.08050)但不确定性高(0.335), 继续推理    
+2026-01-17 20:06:29,285 - INFO - 推理深度监控器初始化 (收敛阈值=50.0)
+2026-01-17 20:06:29,287 - WARNING - ⚠️ 推理深度不足检测:
+2026-01-17 20:06:29,288 - WARNING -    - 当前深度: 100
+2026-01-17 20:06:29,288 - WARNING -    - 建议深度: 100
+2026-01-17 20:06:29,289 - WARNING -    - 置信度: 0.20
+2026-01-17 20:06:29,290 - WARNING -    - 检测到周期性模式（可能陷入局部循环）
+2026-01-17 20:06:29,292 - WARNING - ⚠️ Reasoning Truncation Detected! Current: 100, Recommended: 1000, Confidence: 0.20, Analysis: 检测到周期性模式（可能陷入局部循环）
+   [System] ✅ 步骤执行成功，准备进入下一步...
+Batches: 100%|██████████████████████████████████████████████████████| 1/1 [00:00<00:00,  6.01it/s]   [The Seed] 🧬 Intuition: {'suggested_action': 'explore', 'survival_drive': 0.591, 'intrinsic_curiosity': np.float64(0.4501358221893823), 'entropy': np.float64(0.4501358221893823), 'intuition_confidence': np.float64(0.6191788958666122), 'insight_trigger': 'Why is the state entropy 0.45?', 'neural_action': 'analyze', 'thought_chain': '(analyze) -> Concept_11000001 => (integrate) -> Concept_11111000 => (explore) -> Concept_11100001 => (create) -> Concept_01100101 => (rest) -> Concept_01110001 => (create) -> Concept_01110101 => (explore) -> Concept_11100001 => (create) -> Concept_01110101 => (rest) -> Concept_01100001 => (analyze) -> Concept_01110101 => (explore) -> Concept_11110101 => (integrate) -> Concept_01110001 => (integrate) -> Concept_01000101 => (analyze) -> Concept_01100101 => (integrate) -> Concept_01000101 => (rest) -> Concept_01100001 => (create) -> Concept_01110101 => (explore) -> Concept_11110101 => (integrate) -> Concept_01110101 => (integrate) -> Concept_01000101 => (integrate) -> Concept_01100101 => (integrate) -> Concept_01100101 => (create) -> Concept_01100101 => (integrate) -> Concept_01100101 => (create) -> Concept_01100101 => (create) -> Concept_01100101 => (create) -> Concept_01100101 => (create) -> Concept_01100101 => (create) -> Concept_01100101 => (create) -> Concept_01100101 => (create) -> Concept_01100101 => (create) -> Concept_01100101 => (create) -> Concept_01100101 => (create) -> Concept_01100101 => (create) -> Concept_01100101 => (create) -> Concept_01100101 => (create) -> Concept_01100101 => (create) -> Concept_01100101 => (create) -> Concept_01100101 => (create) -> Concept_01100101 => (create) -> Concept_01100101 => (create) -> Concept_01100101 => (create) -> Concept_01100101 => (create) -> Concept_01100101 => (create) -> Concept_01100101 => (create) -> Concept_01100101 => (create) -> Concept_01100101 => (create) -> Concept_01100101 => (create) -> Concept_01100101 => (create) -> Concept_01100101 => (create) -> Concept_01100101 => (create) -> Concept_01100101 => (create) -> Concept_01100101 => (create) -> Concept_01100101 => (create) -> Concept_01100101 => (create) -> Concept_01100101 => (create) -> Concept_01100101 => (create) -> Concept_01100101 => (create) -> Concept_01100101 => (create) -> Concept_01100101 => (create) -> Concept_01100101 => (create) -> Concept_01100101 => (create) -> Concept_01100101 => (create) -> Concept_01100101 => (create) -> Concept_01100101 => (create) -> Concept_01100101 => (create) -> Concept_01100101 => (create) -> Concept_01100101 => (create) -> Concept_01100101 => (create) -> Concept_01100101 => (create) -> Concept_01100101 => (create) -> Concept_01100101 => (create) -> Concept_01100101 => (create) -> Concept_01100101 => (create) -> Concept_01100101 => (create) -> Concept_01100101 => (create) -> Concept_01100101 => (create) -> Concept_01100101 => (create) -> Concept_01100101 => (create) -> Concept_01100101 => (create) -> Concept_01100101 => (create) -> Concept_01100101 => (create) -> Concept_01100101 => (create) -> Concept_01100101 => (create) -> Concept_01100101 => (create) -> Concept_01100101 => (create) -> Concept_01100101 => (create) -> Concept_01100101 => (create) -> Concept_01100101 => (create) -> Concept_01100101 => (create) -> Concept_01100101 => (create) -> Concept_01100101 => (create) -> Concept_01100101 => (create) -> Concept_01100101 => (create) -> Concept_01100101 => (create) -> Concept_01100101 => (create) -> Concept_01100101 => (create) -> Concept_01100101 => (create) -> Concept_01100101 => (create) -> Concept_01100101'} 
+
+   [System] ⏱️ Tick 2 | Cycle: 2 | Drive: MAINTAIN
+  [WorkingMemory] [LOOP] 检测到循环: 简单重复: Ccf039edd94e8
+  [WorkingMemory] [BREAK] 打破循环: integrate -> 动作切换: integrate → analyze
+概念切换: Ccf039edd94e8 → RecallRare_Cd0b7432b8bdf
+  [WorkingMemory] [FORCE-ACTION] 动作强制: create → analyze (剩余: 5)
+  [WorkingMemory] [COOLDOWN-PRECHECK] 概念冷却: C2e927f744777 → C2e927f744777 (尝试 1)
+  [WorkingMemory] [FORCE-ACTION] 动作强制: create → analyze (剩余: 4)
+  [WorkingMemory] [COOLDOWN-PRECHECK] 概念冷却: C2e927f744777 → C2e927f744777 (尝试 1)
+  [WorkingMemory] [FORCE-ACTION] 动作强制: create → analyze (剩余: 3)
+  [WorkingMemory] [COOLDOWN-PRECHECK] 概念冷却: C2e927f744777 → C2e927f744777 (尝试 1)
+  [WorkingMemory] [LOOP] 检测到循环: 动作循环: analyze
+  [WorkingMemory] [BREAK] 打破循环: analyze -> 动作切换: analyze → integrate
+  [WorkingMemory] [FORCE-ACTION] 动作强制: create → integrate (剩余: 4)
+  [WorkingMemory] [COOLDOWN-PRECHECK] 紧急生成: Cf16d225ef32a
+  [WorkingMemory] [FORCE-ACTION] 动作强制: create → integrate (剩余: 3)
+  [WorkingMemory] [COOLDOWN-PRECHECK] 紧急生成: Ce41dbcc846d1
+  [WorkingMemory] [FORCE-ACTION] 动作强制: create → integrate (剩余: 2)
+  [WorkingMemory] [COOLDOWN-PRECHECK] 紧急生成: C582355fc14a3
+  [WorkingMemory] [FORCE-ACTION] 动作强制: create → integrate (剩余: 1)
+  [WorkingMemory] [COOLDOWN-PRECHECK] 紧急生成: C757ce01e63a8
+  [WorkingMemory] [COOLDOWN-PRECHECK] 紧急生成: C3af3666a0a19
+  [WorkingMemory] [COOLDOWN-PRECHECK] 紧急生成: C1aea8f6f7d75
+  [WorkingMemory] [COOLDOWN-PRECHECK] 紧急生成: C4829778813ed
+  [WorkingMemory] [COOLDOWN-PRECHECK] 紧急生成: C3541d1f07a59
+  [WorkingMemory] [COOLDOWN-PRECHECK] 紧急生成: C60d80be923b2
+  [WorkingMemory] [COOLDOWN-PRECHECK] 紧急生成: Cbe369264757b
+  [WorkingMemory] [COOLDOWN-PRECHECK] 紧急生成: Cda7772add1fd
+  [WorkingMemory] [COOLDOWN-PRECHECK] 紧急生成: Cdc2d2a833fc4
+  [WorkingMemory] [COOLDOWN-PRECHECK] 紧急生成: C4fd7a9179ec0
+  [WorkingMemory] [COOLDOWN-PRECHECK] 紧急生成: C50c972651c02
+  [WorkingMemory] [COOLDOWN-PRECHECK] 紧急生成: C4f932cc2b2c8
+  [WorkingMemory] [COOLDOWN-PRECHECK] 紧急生成: Cad13f299c8dc
+  [WorkingMemory] [COOLDOWN-PRECHECK] 紧急生成: Ce082781622c2
+  [WorkingMemory] [COOLDOWN-PRECHECK] 紧急生成: Ca43913f8d8b9
+  [WorkingMemory] [COOLDOWN-PRECHECK] 紧急生成: C1057c34d7182
+  [WorkingMemory] [COOLDOWN-PRECHECK] 紧急生成: Ce9b121538a95
+  [WorkingMemory] [COOLDOWN-PRECHECK] 紧急生成: Cee2f90712973
+  [WorkingMemory] [COOLDOWN-PRECHECK] 紧急生成: Cced6fbb2b281
+  [WorkingMemory] [COOLDOWN-PRECHECK] 紧急生成: Ce7e748a446ab
+  [WorkingMemory] [COOLDOWN-PRECHECK] 紧急生成: C44a691c85cee
+  [WorkingMemory] [COOLDOWN-PRECHECK] 概念冷却: C66c2e2c38045 → C66c2e2c38045 (尝试 1)
+  [WorkingMemory] [COOLDOWN-PRECHECK] 概念冷却: C1d9c01ee198d → C1d9c01ee198d (尝试 1)
+  [WorkingMemory] [COOLDOWN-PRECHECK] 概念冷却: C94448fc00784 → C94448fc00784 (尝试 1)
+  [WorkingMemory] [COOLDOWN-PRECHECK] 概念冷却: C94448fc00784 → C94448fc00784 (尝试 1)
+  [WorkingMemory] [COOLDOWN-PRECHECK] 概念冷却: C94448fc00784 → C94448fc00784 (尝试 1)
+  [WorkingMemory] [COOLDOWN-PRECHECK] 概念冷却: C94448fc00784 → C94448fc00784 (尝试 1)
+  [WorkingMemory] [LOOP] 检测到循环: 简单重复: C94448fc00784
+  [WorkingMemory] [BREAK] 打破循环: create -> 动作切换: create → explore
+概念切换: C94448fc00784 → RecallRare_C7d3e72468601
+  [WorkingMemory] [FORCE-ACTION] 动作强制: create → explore (剩余: 4)
+  [WorkingMemory] [COOLDOWN-PRECHECK] 概念冷却: C6e40f8b12a31 → C6e40f8b12a31 (尝试 1)
+  [WorkingMemory] [FORCE-ACTION] 动作强制: create → explore (剩余: 3)
+  [WorkingMemory] [COOLDOWN-PRECHECK] 概念冷却: C6e40f8b12a31 → C6e40f8b12a31 (尝试 1)
+  [WorkingMemory] [FORCE-ACTION] 动作强制: create → explore (剩余: 2)
+  [WorkingMemory] [COOLDOWN-PRECHECK] 概念冷却: C6e40f8b12a31 → C6e40f8b12a31 (尝试 1)
+  [WorkingMemory] [FORCE-ACTION] 动作强制: create → explore (剩余: 1)
+  [WorkingMemory] [COOLDOWN-PRECHECK] 概念冷却: C6e40f8b12a31 → C6e40f8b12a31 (尝试 1)
+  [WorkingMemory] [LOOP] 检测到循环: 简单重复: C6e40f8b12a31
+  [WorkingMemory] [BREAK] 打破循环: explore -> 动作切换: explore → analyze
+概念切换: C6e40f8b12a31 → RecallRare_C986e97d71749
+  [WorkingMemory] [FORCE-ACTION] 动作强制: create → analyze (剩余: 5)
+2026-01-17 20:06:31,220 - INFO - [InsightPromptEnhancer] Prompt enhanced with utilities guide      
+2026-01-17 20:06:31,881 - INFO - HTTP Request: POST https://dashscope.aliyuncs.com/compatible-mode/v1/chat/completions "HTTP/1.1 200 OK"
+2026-01-17 20:06:31,894 - INFO - [DEBUG-AWARENESS] _compute_self_awareness output shape: torch.Size([1, 64])
+2026-01-17 20:06:31,894 - INFO - [DEBUG-AWARENESS] self_awareness min: 0.498329
+2026-01-17 20:06:31,895 - INFO - [DEBUG-AWARENESS] self_awareness max: 0.500738
+2026-01-17 20:06:31,896 - INFO - [DEBUG-AWARENESS] self_awareness mean: 0.499986
+2026-01-17 20:06:31,896 - INFO - [DEBUG-AWARENESS] self_awareness std: 0.000323
+2026-01-17 20:06:31,898 - INFO - [DEBUG-B1] meta.self_awareness shape: torch.Size([1, 64])
+2026-01-17 20:06:31,899 - INFO - [DEBUG-B1] meta.self_awareness dtype: torch.float32
+2026-01-17 20:06:31,899 - INFO - [DEBUG-B1] meta.self_awareness device: cpu
+2026-01-17 20:06:31,900 - INFO - [DEBUG-B1] meta.self_awareness raw values:
+tensor([[0.5001, 0.5000, 0.4998, 0.5002, 0.5001, 0.4996, 0.5003, 0.4999, 0.5000,
+         0.5001, 0.5000, 0.5000, 0.5001, 0.5000, 0.4996, 0.4995, 0.4999, 0.5001,
+         0.5002, 0.5002, 0.4997, 0.5002, 0.5002, 0.5007, 0.5003, 0.5000, 0.5003,
+         0.4999, 0.5003, 0.4999, 0.5000, 0.4997, 0.5005, 0.4997, 0.5000, 0.5000,
+         0.5002, 0.5000, 0.5000, 0.5000, 0.5001, 0.5000, 0.5003, 0.4997, 0.4995,
+         0.5000, 0.5000, 0.4983, 0.5001, 0.5000, 0.5000, 0.5005, 0.4999, 0.5000,
+         0.4995, 0.4999, 0.5001, 0.4996, 0.5003, 0.5001, 0.5000, 0.4999, 0.5000,
+         0.5001]])
+2026-01-17 20:06:31,901 - INFO - [DEBUG-B1] self_awareness min: 0.498329
+2026-01-17 20:06:31,901 - INFO - [DEBUG-B1] self_awareness max: 0.500738
+2026-01-17 20:06:31,901 - INFO - [DEBUG-B1] self_awareness std: 0.000323
+2026-01-17 20:06:31,901 - INFO - [DEBUG-B1] self_awareness.mean() BEFORE final: 0.499986
+2026-01-17 20:06:31,901 - INFO - [DEBUG-B1] confidence_old (self_awareness.mean()): 0.499986       
+2026-01-17 20:06:31,902 - INFO - [DEBUG-B1] confidence_NEW (goal_score): 0.595362
+2026-01-17 20:06:31,902 - INFO - [DEBUG-B1] entropy: -0.000000
+2026-01-17 20:06:31,902 - INFO - [DEBUG-B1] goal_score: 0.5953615307807922
+2026-01-17 20:06:31,902 - INFO - [DEBUG-B1] FINAL confidence: 0.595362
+2026-01-17 20:06:31,904 - INFO - [DEBUG-B3] Returning to double_helix: action=0, confidence=0.595362
+2026-01-17 20:06:31,904 - INFO - [智能融合] 🎯 选择系统B（擅长区域）: 当前置信度: B=0.595 >> A=0.278
+
+  [WorkingMemory] [COOLDOWN-PRECHECK] 紧急生成: Ce00ae698c520
+  [WorkingMemory] [FORCE-ACTION] 动作强制: create → analyze (剩余: 4)
+  [WorkingMemory] [COOLDOWN-PRECHECK] 概念冷却: C12b36149826a → C12b36149826a (尝试 1)
+  [WorkingMemory] [FORCE-ACTION] 动作强制: create → analyze (剩余: 3)
+  [WorkingMemory] [COOLDOWN-PRECHECK] 概念冷却: C12b36149826a → C12b36149826a (尝试 1)
+  [WorkingMemory] [LOOP] 检测到循环: 动作循环: analyze
+  [WorkingMemory] [BREAK] 打破循环: analyze -> 动作切换: analyze → create
+  [WorkingMemory] [COOLDOWN-PRECHECK] 紧急生成: C1b1f06c531bd
+  [WorkingMemory] [COOLDOWN-PRECHECK] 紧急生成: C9d33e7648af1
+  [WorkingMemory] [COOLDOWN-PRECHECK] 概念冷却: Cab75aa0420b3 → Cab75aa0420b3 (尝试 1)
+  [WorkingMemory] [COOLDOWN-PRECHECK] 概念冷却: Cab75aa0420b3 → Cab75aa0420b3 (尝试 1)
+  [WorkingMemory] [COOLDOWN-PRECHECK] 概念冷却: C34495f3348a7 → C34495f3348a7 (尝试 1)
+  [WorkingMemory] [COOLDOWN-PRECHECK] 概念冷却: C7054097a87b4 → C7054097a87b4 (尝试 1)
+  [WorkingMemory] [COOLDOWN-PRECHECK] 概念冷却: C1d9c01ee198d → C1d9c01ee198d (尝试 1)
+  [WorkingMemory] [COOLDOWN-PRECHECK] 概念冷却: C1d9c01ee198d → C1d9c01ee198d (尝试 1)
+  [WorkingMemory] [COOLDOWN-PRECHECK] 概念冷却: Cdab3bf5a8f65 → Cdab3bf5a8f65 (尝试 1)
+  [WorkingMemory] [COOLDOWN-PRECHECK] 概念冷却: C1d9c01ee198d → C1d9c01ee198d (尝试 1)
+  [WorkingMemory] [COOLDOWN-PRECHECK] 概念冷却: C281ac188cf76 → C281ac188cf76 (尝试 1)
+  [WorkingMemory] [COOLDOWN-PRECHECK] 概念冷却: C281ac188cf76 → C281ac188cf76 (尝试 1)
+  [WorkingMemory] [COOLDOWN-PRECHECK] 概念冷却: C3c4d83ce0290 → C3c4d83ce0290 (尝试 1)
+  [WorkingMemory] [COOLDOWN-PRECHECK] 概念冷却: C281ac188cf76 → C281ac188cf76 (尝试 1)
+  [WorkingMemory] [COOLDOWN-PRECHECK] 概念冷却: C4dff010fc059 → C4dff010fc059 (尝试 1)
+  [WorkingMemory] [COOLDOWN-PRECHECK] 概念冷却: C55bbe773117b → C55bbe773117b (尝试 1)
+  [WorkingMemory] [COOLDOWN-PRECHECK] 概念冷却: Cf6fe3d2be767 → Cf6fe3d2be767 (尝试 1)
+  [WorkingMemory] [COOLDOWN-PRECHECK] 概念冷却: C2eb74a00bc54 → C2eb74a00bc54 (尝试 1)
+  [WorkingMemory] [COOLDOWN-PRECHECK] 概念冷却: C67cb52f72a09 → C67cb52f72a09 (尝试 1)
+  [WorkingMemory] [COOLDOWN-PRECHECK] 概念冷却: C850d5612fe74 → C850d5612fe74 (尝试 1)
+  [WorkingMemory] [COOLDOWN-PRECHECK] 概念冷却: C8b14ee2aa411 → C8b14ee2aa411 (尝试 1)
+  [WorkingMemory] [COOLDOWN-PRECHECK] 概念冷却: C770a313e630a → C770a313e630a (尝试 1)
+  [WorkingMemory] [COOLDOWN-PRECHECK] 概念冷却: Cc1a80258a6d0 → Cc1a80258a6d0 (尝试 1)
+  [WorkingMemory] [COOLDOWN-PRECHECK] 概念冷却: Cb2218141ae6b → Cb2218141ae6b (尝试 1)
+  [WorkingMemory] [COOLDOWN-PRECHECK] 概念冷却: Cd5da12eec5ff → Cd5da12eec5ff (尝试 1)
+  [WorkingMemory] [COOLDOWN-PRECHECK] 概念冷却: Ca64d2c54e3be → Ca64d2c54e3be (尝试 1)
+  [WorkingMemory] [COOLDOWN-PRECHECK] 概念冷却: C319c9eb48a96 → C319c9eb48a96 (尝试 1)
+  [WorkingMemory] [COOLDOWN-PRECHECK] 概念冷却: C8a8dfddb2821 → C8a8dfddb2821 (尝试 1)
+  [WorkingMemory] [COOLDOWN-PRECHECK] 概念冷却: C7f288de988d6 → C7f288de988d6 (尝试 1)
+  [WorkingMemory] [COOLDOWN-PRECHECK] 概念冷却: C3022b749a994 → C3022b749a994 (尝试 1)
+  [WorkingMemory] [COOLDOWN-PRECHECK] 概念冷却: Ca47327ab885b → Ca47327ab885b (尝试 1)
+  [WorkingMemory] [COOLDOWN-PRECHECK] 概念冷却: C479158dc412a → C479158dc412a (尝试 1)
+  [WorkingMemory] [COOLDOWN-PRECHECK] 概念冷却: C4d05cb2d3a1d → C4d05cb2d3a1d (尝试 1)
+  [WorkingMemory] [COOLDOWN-PRECHECK] 概念冷却: C1d2da8f54716 → C1d2da8f54716 (尝试 1)
+  [WorkingMemory] [COOLDOWN-PRECHECK] 概念冷却: C183f6cface75 → C183f6cface75 (尝试 1)
+  [WorkingMemory] [COOLDOWN-PRECHECK] 概念冷却: C1964dbe312a6 → C1964dbe312a6 (尝试 1)
+   [Seed] 🧬 State: Curiosity=0.45(Med) | Entropy=0.45(Balanced) | Survival=0.59 | Action=analyze (suggested=explore)
+   [Seed] 💭 Thought Stream: (analyze) -> Cd0b7432b8bdf => (integrate) -> Cd6e678a46260 => (explore) -> C7d3e72468601 => (create) -> Ccf039edd94e8 => (rest) -> C986e97d71749 => (create) -> C766562d73261 => (explore) -> C7d3e72468601 => (create) -> C766562d73261 => (rest) -> Cc8aff551e063 => (analyze) -> C766562d73261 => (explore) -> Ca5d90d3f9271 => (integrate) -> C986e97d71749 => (integrate) -> C0d0a5c9cf3d7 => (analyze) -> Ccf039edd94e8 => (integrate) -> C0d0a5c9cf3d7 => (rest) -> Cc8aff551e063 => (create) -> C766562d73261 => (explore) -> Ca5d90d3f9271 => (integrate) -> C766562d73261 => (integrate) -> C0d0a5c9cf3d7 => (integrate) -> Ccf039edd94e8 => (integrate) -> Ccf039edd94e8 => (create) -> Ccf039edd94e8 => (analyze) -> RecallRare_Cd0b7432b8bdf => (analyze) -> C2e927f744777 => (analyze) -> C2e927f744777 => (integrate) -> C2e927f744777 => (integrate) -> Cf16d225ef32a => (integrate) -> Ce41dbcc846d1 => (integrate) -> C582355fc14a3 => (integrate) -> C757ce01e63a8 => (create) -> C3af3666a0a19 => (create) -> C1aea8f6f7d75 => (create) -> C4829778813ed => (create) -> C3541d1f07a59 => (create) -> C60d80be923b2 => (create) -> Cbe369264757b => (create) -> Cda7772add1fd => (create) -> Cdc2d2a833fc4 => (create) -> C4fd7a9179ec0 => (create) -> C50c972651c02 => (create) -> C4f932cc2b2c8 => (create) -> Cad13f299c8dc => (create) -> Ce082781622c2 => (create) -> Ca43913f8d8b9 => (create) -> C1057c34d7182 => (create) -> Ce9b121538a95 => (create) -> Cee2f90712973 => (create) -> Cced6fbb2b281 => (create) -> Ce7e748a446ab => (create) -> C44a691c85cee => (create) -> C66c2e2c38045 => (create) -> C1d9c01ee198d => (create) -> C94448fc00784 => (create) -> C94448fc00784 => (create) -> C94448fc00784 => (explore) -> RecallRare_C7d3e72468601 => (explore) -> C6e40f8b12a31 => (explore) -> C6e40f8b12a31 => (explore) -> C6e40f8b12a31 => (analyze) -> RecallRare_C986e97d71749 => (analyze) -> Ce00ae698c520 => (analyze) -> C12b36149826a => (create) -> C12b36149826a => (create) -> C1b1f06c531bd => (create) -> C9d33e7648af1 => (create) -> Cab75aa0420b3 => (create) -> Cab75aa0420b3 => (create) -> C34495f3348a7 => (create) -> C7054097a87b4 => (create) -> C1d9c01ee198d => (create) -> C1d9c01ee198d => (create) -> Cdab3bf5a8f65 => (create) -> C1d9c01ee198d => (create) -> C281ac188cf76 => (create) -> C281ac188cf76 => (create) -> C3c4d83ce0290 => (create) -> C281ac188cf76 => (create) -> C4dff010fc059 => (create) -> C55bbe773117b => (create) -> Cf6fe3d2be767 => (create) -> C2eb74a00bc54 => (create) -> C67cb52f72a09 => (create) -> C850d5612fe74 => (create) -> C8b14ee2aa411 => (create) -> C770a313e630a => (create) -> Cc1a80258a6d0 => (create) -> Cb2218141ae6b => (create) -> Cd5da12eec5ff => (create) -> Ca64d2c54e3be => (create) -> C319c9eb48a96 => (create) -> C8a8dfddb2821 => (create) -> C7f288de988d6 => (create) -> C3022b749a994 => (create) -> Ca47327ab885b => (create) -> C479158dc412a => (create) -> C4d05cb2d3a1d => (create) -> C1d2da8f54716 => (create) -> C183f6cface75 => (create) -> C1964dbe312a6
+   [Global] 🌍 User Focus: AGI - Visual Studio Code (Code.exe)
+   [Executor] 👉 执行步骤 2/10: {"tool": "read_file", "args": {"path": "data/gap_analysis.json"}}  
+   [Helix] 🧬 Decision Enhancement Active:
+      Confidence: 0.60 | Method: complementary_selection_B
+      Emergence: 0.000 | Preference: B
+Batches: 100%|██████████████████████████████████████████████████████| 1/1 [00:00<00:00, 77.22it/s] 
+2026-01-17 20:06:31,920 - INFO - Starting consolidation of 1 memories...
+2026-01-17 20:06:32,037 - INFO - Growing topology connections for 1 new nodes...
+2026-01-17 20:06:32,069 - INFO - Rescued 5 isolated nodes by force-connecting to nearest neighbors.
+2026-01-17 20:06:35,412 - INFO - Brain state saved.
+   [Executor] 💭 Received order: {"tool": "read_file", "args": {"path": "data/gap_analysis.json"}}
+   [Executor] 💭 🔨 Invoking Tool: read_file | Args: {'path': 'data/gap_analysis.json'}
+   [Executor] 💭    ↳ Result: {"missing_files": ["data/rag_5_ref.csv", "data/coverage_eval.json"], "suggestions": "Collect RAG evaluation data for topk=5 and update coverage metrics."}
+Batches: 100%|██████████████████████████████████████████████████████| 1/1 [00:00<00:00, 44.56it/s]
+2026-01-17 20:06:39,047 - INFO - Brain state saved.
+   [Critic] 🧐 评分: 1.00
+Batches: 100%|██████████████████████████████████████████████████████| 1/1 [00:00<00:00, 34.72it/s]
+2026-01-17 20:06:42,259 - INFO - Brain state saved.

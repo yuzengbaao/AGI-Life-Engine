@@ -1,0 +1,63 @@
+{
+  "title": "Bytebot 集成施工规范",
+  "version": "1.0",
+  "definitions": {
+    "desktop_executor": "Bytebot 虚拟桌面与其控制API",
+    "adapter": "AGI 与 Bytebot 的集成层",
+    "takeover_mode": "人工在UI中临时控制桌面以解决异常"
+  },
+  "directories": {
+    "docs": "docs/bytebot/",
+    "config": "config/bytebot/",
+    "artifacts": "artifacts/bytebot/"
+  },
+  "procedures": {
+    "startup": [
+      "准备 docker/.env",
+      "启动四服务并验证端口与健康"
+    ],
+    "configuration": [
+      "在UI安装密码管理器与必需软件",
+      "设置下载目录映射到输出卷"
+    ],
+    "tasks": [
+      "使用 http://localhost:9991/tasks 创建任务",
+      "使用 http://localhost:9990/computer-use 执行细粒度动作"
+    ],
+    "observability": [
+      "在 http://localhost:9992 观看实时桌面",
+      "异常时启用接管模式并记录处理"
+    ]
+  },
+  "security": {
+    "ports": "intranet only",
+    "proxy_auth": true,
+    "password_manager": true,
+    "least_privilege": true,
+    "volume_isolation": true,
+    "encrypted_storage": true
+  },
+  "audit": {
+    "artifacts": ["screenshots", "logs", "recordings"],
+    "takeover_record": true
+  },
+  "checklists": {
+    "connectivity": ["9990 online", "9991 online", "9992 online"],
+    "sample_tasks": ["web_capture_success", "pdf_extract_success", "bulk_download_success"],
+    "evidence": ["screenshots_present", "logs_present", "recordings_present"],
+    "security": ["ports_restricted", "secrets_managed", "volumes_permissions_ok"]
+  },
+  "phase_gates": {
+    "policy": "阶段结束必须通过清单并记录复核；不达标禁止进入下一阶段"
+  },
+  "rollback": {
+    "cancel_task": true,
+    "restore_snapshot": true,
+    "revert_outputs": true
+  },
+  "documentation": {
+    "formats": ["markdown", "json"],
+    "sync_required": true,
+    "archive": true
+  }
+}

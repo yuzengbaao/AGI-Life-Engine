@@ -1,0 +1,141 @@
+import json
+import os
+import numpy as np
+from typing import List, Dict, Any, Optional
+from core.llm_client import LLMService
+
+class ExperienceMemory:
+    def __init__(self, memory_dir: str = "data/memory"):
+        self.memory_dir = memory_dir
+        os.makedirs(self.memory_dir, exist_ok=True)
+        self.stm_file = os.path.join(self.memory_dir, "short_term.json")
+        self.ltm_file = os.path.join(self.memory_dir, "long_term.json")
+        
+        self.llm = LLMService()
+        
+        self.stm = self._load_memory(self.stm_file)
+        self.ltm = self._load_memory(self.ltm_file)
+
+    def _load_memory(self, file_path: str) -> List[Dict[str, Any]]:
+        if os.path.exists(file_path):
+            try:
+                with open(file_path, 'r', encoding='utf-8') as f:
+                    return json.load(f)
+            except json.JSONDecodeError:
+                return []
+        return []
+
+    def _save_memory(self, data: List[Dict[str, Any]], file_path: str):
+        # Atomic write pattern
+        temp_file = file_path + ".tmp"
+        with open(temp_file, 'w', encoding='utf-8') as f:
+            json.dump(data, f, indent=2, ensure_ascii=False)
+        os.replace(temp_file, file_path)
+
+    def add_experience(self, context: str, action: str, outcome: float, details: Dict[str, Any]):
+        """
+        Record a new experience with Vector Embedding.
+        outcome: 0.0 to 1.0 score of success.
+        """
+        # Generate embedding for the context
+        embedding = self.llm.get_embedding(context)
+        
+        experience = {
+            "context": context,
+            "embedding": embedding,
+            "action": action,
+            "outcome": outcome,
+            "details": details,
+            "timestamp": details.get("timestamp")
+        }
+        self.stm.append(experience)
+        self._save_memory(self.stm, self.stm_file)
+        
+        # Trigger consolidation if STM gets too big
+        if len(self.stm) > 100:
+            self._consolidate_memory()
+
+    def _consolidate_memory(self):
+        """Move successful experiences to LTM, discard noise."""
+        # Simple heuristic: keep high-outcome experiences
+        valuable_experiences = [exp for exp in self.stm if exp['outcome'] > 0.8]
+        self.ltm.extend(valuable_experiences)
+        self._save_memory(self.ltm, self.ltm_file)
+        
+        # Clear STM
+        self.stm = []
+        self._save_memory(self.stm, self.stm_file)
+
+    def recall_relevant(self, query: str, threshold: float = 0.5) -> List[Dict[str, Any]]:
+        """
+        Semantic recall using Vector Similarity (Cosine Similarity).
+        """
+        query_embedding = self.llm.get_embedding(query)
+        q_vec = np.array(query_embedding)
+        
+        results = []
+        
+        # Combine memories
+        all_memories = self.stm + self.ltm
+        
+        for memory in all_memories:
+            # Skip corrected/deprecated memories
+            if memory.get('status') == 'corrected':
+                continue
+
+            # Calculate similarity
+            score = 0.0
+            
+            # Vector Search
+            if 'embedding' in memory and memory['embedding']:
+                m_vec = np.array(memory['embedding'])
+                
+                # Check dimensions mismatch (e.g. different embedding models)
+                if m_vec.shape != q_vec.shape:
+                    continue
+                    
+                # Cosine Similarity: (A . B) / (||A|| * ||B||)
+                # Note: OpenAI embeddings are usually normalized, so just dot product is enough.
+                # But for safety, we compute full cosine.
+                norm_q = np.linalg.norm(q_vec)
+                norm_m = np.linalg.norm(m_vec)
+                if norm_q > 0 and norm_m > 0:
+                    score = np.dot(q_vec, m_vec) / (norm_q * norm_m)
+            else:
+                if query in memory['context']:
+                    score = 0.5
+            
+            if score > threshold:
+                results.append((score, memory))
+        
+        # Sort by score desc
+        results.sort(key=lambda x: x[0], reverse=True)
+        
+        return [r[1] for r in results[:5]]
+
+    def reflect_and_correct(self, query: str, correction: str):
+        """
+        [New Feature] Philosopher calls this to correct erroneous cognition
+        """
+        import time
+        # 1. Find relevant old memories
+        relevant_memories = self.recall_relevant(query, threshold=0.7)
+        
+        for mem in relevant_memories:
+            # 2. Mark as 'corrected', not physical deletion (audit trail)
+            mem['status'] = 'corrected'
+            mem['correction_note'] = correction
+            mem['corrected_at'] = time.time()
+            
+            # 3. Create a new 'reflective memory'
+            self.add_experience(
+                context=f"CORRECTION: {mem['context']} -> {correction}",
+                action="SelfReflection",
+                outcome=1.0,
+                details={"original_id": mem.get('timestamp'), "reason": correction, "timestamp": time.time()}
+            )
+        
+        # Save both LTM and STM just in case
+        self._save_memory(self.ltm, self.ltm_file)
+        self._save_memory(self.stm, self.stm_file)
+        return f"Corrected {len(relevant_memories)} relevant memories."

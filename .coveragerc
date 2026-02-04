@@ -1,0 +1,15 @@
+[run]
+relative_files = True
+omit =
+	tests/*
+	*/site-packages/*
+	*/dist-packages/*
+	*/venv/*
+	*/.venv/*
+
+[report]
+include =
+	three_layer_memory.py
+	enhanced_world_model.py
+	hierarchical_planning.py
+precision = 1

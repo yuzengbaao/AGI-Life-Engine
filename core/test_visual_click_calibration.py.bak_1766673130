@@ -1,0 +1,119 @@
+import time
+import json
+from typing import Dict, Tuple, List
+import random
+
+# 模拟不同分辨率下的屏幕点击与视觉验证测试脚本
+# 使用 execute_visual_click 执行点击，通过 vision_observer.py 验证实际点击位置
+# 记录偏差数据用于后续动态校准模型训练
+
+def execute_visual_click(x: float, y: float, resolution: Tuple[int, int]):
+    """
+    模拟在指定分辨率下执行视觉点击
+    x, y: 归一化坐标（0.0 ~ 1.0）
+    resolution: 屏幕分辨率 (width, height)
+    """
+    width, height = resolution
+    actual_x = int(x * width)
+    actual_y = int(y * height)
+    print(f"[点击模拟] 分辨率: {resolution}, 归一化坐标: ({x:.3f}, {y:.3f}) -> 实际坐标: ({actual_x}, {actual_y})")
+    # 此处调用实际的点击接口（如ADB、PyAutoGUI等）
+    # 模拟点击延迟
+    time.sleep(0.5)
+    return actual_x, actual_y
+
+def get_observed_position_via_vision() -> Tuple[int, int]:
+    """
+    调用 vision_observer.py 获取实际观测到的点击中心位置
+    这里模拟返回一个带有随机偏移的坐标
+    """
+    # 模拟视觉检测返回的坐标（含误差）
+    offset_x = random.randint(-15, 15)
+    offset_y = random.randint(-15, 15)
+    observed_x = 540 + offset_x  # 假设目标在 540,960 周围
+    observed_y = 960 + offset_y
+    print(f"[视觉观测] 检测到点击位置: ({observed_x}, {observed_y}), 偏移: ({offset_x}, {offset_y})")
+    return observed_x, observed_y
+
+def run_calibration_test(resolution: Tuple[int, int], test_points: List[Tuple[float, float]], rounds: int = 3):
+    """
+    在指定分辨率下运行多轮点击测试，收集偏差数据
+    """
+    width, height = resolution
+    calibration_data = []
+
+    for _ in range(rounds):
+        for nx, ny in test_points:
+            # 执行点击
+            expected_x, expected_y = execute_visual_click(nx, ny, resolution)
+
+            # 观察实际点击位置
+            time.sleep(0.3)
+            observed_x, observed_y = get_observed_position_via_vision()
+
+            # 计算偏差
+            delta_x = observed_x - expected_x
+            delta_y = observed_y - expected_y
+
+            record = {
+                "resolution": resolution,
+                "normalized_x": nx,
+                "normalized_y": ny,
+                "expected_x": expected_x,
+                "expected_y": expected_y,
+                "observed_x": observed_x,
+                "observed_y": observed_y,
+                "delta_x": delta_x,
+                "delta_y": delta_y
+            }
+            calibration_data.append(record)
+            print(f"[记录] 偏差: Δx={delta_x}, Δy={delta_y}")
+            time.sleep(0.5)  # 每次点击间隔
+
+    return calibration_data
+
+def main():
+    """
+    主函数：遍历多种分辨率，执行测试，保存偏差数据
+    """
+    # 测试使用的分辨率列表
+    resolutions = [
+        (720, 1280),
+        (1080, 1920),
+        (1440, 2560),
+        (1080, 2340),
+        (750, 1334)
+    ]
+
+    # 测试点：归一化坐标（覆盖中心、四角、边缘）
+    test_points = [
+        (0.5, 0.5),   # 中心
+        (0.1, 0.1),   # 左上
+        (0.9, 0.1),   # 右上
+        (0.1, 0.9),   # 左下
+        (0.9, 0.9),   # 右下
+        (0.5, 0.1),   # 上中
+        (0.5, 0.9),   # 下中
+        (0.1, 0.5),   # 左中
+        (0.9, 0.5)    # 右中
+    ]
+
+    all_data = []
+
+    for res in resolutions:
+        print(f"\n[开始测试] 分辨率: {res}")
+        data = run_calibration_test(res, test_points, rounds=2)
+        all_data.extend(data)
+
+    # 保存偏差数据到 JSON 文件，供训练使用
+    timestamp = int(time.time())
+    filename = f"calibration_data_{timestamp}.json"
+    with open(filename, "w", encoding="utf-8") as f:
+        json.dump(all_data, f, indent=2, ensure_ascii=False)
+
+    print(f"\n[完成] 所有测试结束，共收集 {len(all_data)} 条记录")
+    print(f"偏差数据已保存至: {filename}")
+    print("下一步建议：使用该数据训练回归模型以预测点击偏移，实现动态校准")
+
+if __name__ == "__main__":
+    main()

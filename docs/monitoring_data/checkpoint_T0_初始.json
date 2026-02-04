@@ -1,0 +1,28 @@
+{
+  "name": "T0_初始",
+  "data": {
+    "timestamp": "2026-01-21 10:57:26",
+    "total_lines": 148465,
+    "emergency_rate": 65.04354163786928,
+    "cooldown_checks": 79579,
+    "emergency_count": 51761,
+    "replace_count": 27818,
+    "loop_detections": 12575,
+    "loop_breaks": 12575,
+    "force_actions": 42963,
+    "critic_evaluations": 3,
+    "critic_avg_score": 1.0,
+    "tool_calls": 16,
+    "unique_tools": 3,
+    "intent_processed": 16,
+    "intent_executed": 1,
+    "brain_saves": 25,
+    "unique_concepts": 56241,
+    "autonomy_score": 80,
+    "reflection_score": 60,
+    "metacognition_score": 100,
+    "concept_score": 34.95645836213072,
+    "overall_score": 68.73911459053268
+  },
+  "timestamp": "2026-01-21 10:57:26"
+}

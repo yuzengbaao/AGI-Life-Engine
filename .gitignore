@@ -107,3 +107,24 @@ cython_debug/
 
 # Documentation builds
 docs/_build/
+node_modules
+
+# Claude Code & AI Tools
+.claude/
+.gemini/
+.qoder/
+.trae/
+
+# Backups
+.backups/
+.agi_rce_backups/
+*.bak
+*.backup
+
+# Test reports and temporary files
+*_report_*.json
+stability_test_report_*.json
+
+# Data files (KML, Excel, etc.)
+*.kml
+*.xlsx

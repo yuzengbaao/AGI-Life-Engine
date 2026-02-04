@@ -1,0 +1,55 @@
+import json
+import logging
+import os
+from datetime import datetime
+from typing import Any, Dict
+
+class ThoughtLogger:
+    def __init__(self, log_dir: str = "data/logs"):
+        self.log_dir = log_dir
+        os.makedirs(self.log_dir, exist_ok=True)
+        self.current_log_file = os.path.join(self.log_dir, f"thought_stream_{datetime.now().strftime('%Y%m%d')}.jsonl")
+        
+        # Setup standard logger for console output
+        self.console_logger = logging.getLogger("AGI_Mind")
+        self.console_logger.setLevel(logging.INFO)
+        if not self.console_logger.handlers:
+            handler = logging.StreamHandler()
+            formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+            handler.setFormatter(formatter)
+            self.console_logger.addHandler(handler)
+
+    def log_thought(self, phase: str, content: Dict[str, Any], meta: Dict[str, Any] = None):
+        """
+        Log a structured thought unit.
+        
+        Args:
+            phase: Current phase (e.g., "THINKING", "CODING", "REFLECTION")
+            content: The core content of the thought
+            meta: Metadata like iteration number, resource usage, etc.
+        """
+        entry = {
+            "timestamp": datetime.now().isoformat(),
+            "phase": phase,
+            "content": content,
+            "meta": meta or {}
+        }
+        
+        # Write to JSONL file
+        with open(self.current_log_file, 'a', encoding='utf-8') as f:
+            f.write(json.dumps(entry, ensure_ascii=False) + "\n")
+            
+        # Output brief to console
+        self.console_logger.info(f"[{phase}] {json.dumps(content, ensure_ascii=False)[:100]}...")
+
+    def replay_thoughts(self, date_str: str = None):
+        """Generator to replay thoughts from a specific date."""
+        target_date = date_str or datetime.now().strftime('%Y%m%d')
+        target_file = os.path.join(self.log_dir, f"thought_stream_{target_date}.jsonl")
+        
+        if not os.path.exists(target_file):
+            return
+            
+        with open(target_file, 'r', encoding='utf-8') as f:
+            for line in f:
+                yield json.loads(line)

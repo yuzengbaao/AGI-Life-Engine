@@ -1,0 +1,158 @@
+import os
+import ast
+import logging
+from collections import defaultdict
+from typing import Dict, List, Optional
+
+# Configure logging
+logger = logging.getLogger("CodeIndexer")
+logger.setLevel(logging.INFO)
+if not logger.handlers:
+    ch = logging.StreamHandler()
+    formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+    ch.setFormatter(formatter)
+    logger.addHandler(ch)
+
+class SymbolNode:
+    """Represents a code symbol (Class, Function, Method)."""
+    def __init__(self, name: str, type: str, file_path: str, line: int, parent: str = None, bases: List[str] = None):
+        self.name = name
+        self.type = type  # 'class', 'function', 'method'
+        self.file_path = file_path
+        self.line = line
+        self.parent = parent # e.g., class name for a method
+        self.bases = bases or [] # Base classes for inheritance
+
+    def to_dict(self):
+        return {
+            "name": self.name,
+            "type": self.type,
+            "file": os.path.basename(self.file_path),
+            "line": self.line,
+            "parent": self.parent,
+            "bases": self.bases
+        }
+
+    def __repr__(self):
+        return f"<{self.type} {self.name} @ {os.path.basename(self.file_path)}:{self.line}>"
+
+class ProjectIndexer:
+    """
+    The 'Cortex' of the AGI.
+    Scans the codebase to build a semantic map of symbols and their relationships.
+    """
+    def __init__(self, root_dir: str):
+        self.root_dir = os.path.abspath(root_dir)
+        # symbol_name -> list of definitions (handling duplicates/overloads)
+        self.definitions: Dict[str, List[SymbolNode]] = defaultdict(list)
+        # symbol_name -> list of usage sites
+        self.calls: Dict[str, List[Dict]] = defaultdict(list) 
+        self.indexed_files = 0
+
+    def build_index(self):
+        """Scans the project directory and builds the AST index."""
+        logger.info(f"Starting index build for: {self.root_dir}")
+        self.indexed_files = 0
+        self.definitions.clear()
+        self.calls.clear()
+        
+        for root, dirs, files in os.walk(self.root_dir):
+            # Intelligent filtering: Skip noise directories
+            dirs[:] = [d for d in dirs if not d.startswith('.') and d not in ['venv', '__pycache__', 'backups', 'logs', 'data', 'dist', 'build']]
+            
+            for file in files:
+                if file.endswith('.py'):
+                    file_path = os.path.join(root, file)
+                    self._index_file(file_path)
+        
+        logger.info(f"Index build complete. Scanned {self.indexed_files} files.")
+        logger.info(f"Knowledge Graph: {len(self.definitions)} unique symbols defined.")
+
+    def _index_file(self, file_path: str):
+        try:
+            with open(file_path, 'r', encoding='utf-8') as f:
+                content = f.read()
+            
+            tree = ast.parse(content)
+            self.indexed_files += 1
+            
+            # Use Visitor pattern for efficient AST traversal
+            visitor = IndexVisitor(file_path, self)
+            visitor.visit(tree)
+            
+        except Exception as e:
+            logger.warning(f"Skipping {os.path.basename(file_path)}: {e}")
+
+    def get_symbol_location(self, name: str) -> List[SymbolNode]:
+        """Finds where a symbol is defined."""
+        return self.definitions.get(name, [])
+
+    def get_callers(self, symbol_name: str) -> List[Dict]:
+        """Finds who calls this symbol (Dependency tracing)."""
+        return self.calls.get(symbol_name, [])
+
+class IndexVisitor(ast.NodeVisitor):
+    def __init__(self, file_path: str, indexer: ProjectIndexer):
+        self.file_path = file_path
+        self.indexer = indexer
+        self.current_class = None
+        self.current_function = None
+
+    def visit_ClassDef(self, node):
+        # Extract base classes
+        bases = []
+        for base in node.bases:
+            if isinstance(base, ast.Name):
+                bases.append(base.id)
+            elif isinstance(base, ast.Attribute):
+                bases.append(base.attr)
+                
+        symbol = SymbolNode(node.name, 'class', self.file_path, node.lineno, bases=bases)
+        self.indexer.definitions[node.name].append(symbol)
+        
+        prev_class = self.current_class
+        self.current_class = node.name
+        self.generic_visit(node)
+        self.current_class = prev_class
+
+    def visit_FunctionDef(self, node):
+        type_ = 'method' if self.current_class else 'function'
+        name = node.name
+        parent = self.current_class
+        
+        symbol = SymbolNode(name, type_, self.file_path, node.lineno, parent)
+        
+        # 1. Index by simple name (e.g., 'fail_goal')
+        self.indexer.definitions[name].append(symbol)
+        
+        # 2. Index by Qualified Name (e.g., 'GoalManager.fail_goal')
+        if parent:
+            qname = f"{parent}.{name}"
+            self.indexer.definitions[qname].append(symbol)
+
+        prev_func = self.current_function
+        self.current_function = node.name
+        self.generic_visit(node)
+        self.current_function = prev_func
+
+    def visit_Call(self, node):
+        # Extract function name being called
+        func_name = self._get_func_name(node.func)
+        if func_name:
+            context = f"{self.current_class}.{self.current_function}" if self.current_class and self.current_function else (self.current_function or "module_level")
+            call_info = {
+                'file': os.path.basename(self.file_path),
+                'line': node.lineno,
+                'context': context
+            }
+            self.indexer.calls[func_name].append(call_info)
+        self.generic_visit(node)
+
+    def _get_func_name(self, node):
+        # Handle 'func()'
+        if isinstance(node, ast.Name):
+            return node.id
+        # Handle 'obj.method()'
+        elif isinstance(node, ast.Attribute):
+            return node.attr 
+        return None
