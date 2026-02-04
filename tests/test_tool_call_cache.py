@@ -30,8 +30,8 @@ sys.path.insert(0, str(Path(__file__).parent.parent))
 from core.tool_call_cache import (
     CacheEntry,
     ToolCallCache,
-    get_tool_call_cache,
-    reset_tool_call_cache,
+    OptimizedCacheEntry,
+    ToolCallCacheOptimized,
 )
 
 
@@ -333,28 +333,29 @@ class TestToolCallCache:
         assert keys == ["a", "m", "z"]  # 已排序
 
 
-class TestGlobalCache:
-    """测试全局缓存单例"""
-
-    def test_get_global_cache(self):
-        """测试获取全局缓存实例"""
-        cache1 = get_tool_call_cache()
-        cache2 = get_tool_call_cache()
-
-        # 应该返回同一实例
-        assert cache1 is cache2
-
-    def test_reset_global_cache(self):
-        """测试重置全局缓存"""
-        cache1 = get_tool_call_cache()
-        cache1.put("test", {}, {"result": "data"})
-
-        # 重置
-        reset_tool_call_cache()
-
-        # 新实例应该是空的
-        cache2 = get_tool_call_cache()
-        assert len(cache2.cache) == 0
+# 全局单例模式已移除（优化版本不支持）
+# class TestGlobalCache:
+#     """测试全局缓存单例"""
+#
+#     def test_get_global_cache(self):
+#         """测试获取全局缓存实例"""
+#         cache1 = get_tool_call_cache()
+#         cache2 = get_tool_call_cache()
+#
+#         # 应该返回同一实例
+#         assert cache1 is cache2
+#
+#     def test_reset_global_cache(self):
+#         """测试重置全局缓存"""
+#         cache1 = get_tool_call_cache()
+#         cache1.put("test", {}, {"result": "data"})
+#
+#         # 重置
+#         reset_tool_call_cache()
+#
+#         # 新实例应该是空的
+#         cache2 = get_tool_call_cache()
+#         assert len(cache2.cache) == 0
 
 
 class TestStatePersistence:
