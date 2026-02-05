@@ -58,16 +58,22 @@ class DeepSeekLLM:
         except Exception as e:
             logger.error(f'[LLM] Init failed: {e}')
     
-    async def generate(self, prompt: str, max_tokens: int = 4000) -> str:
+    async def generate(self, prompt: str, max_tokens: int = 4000, temperature: float = None) -> str:
         if not self.client:
             raise ValueError('LLM not initialized')
 
         try:
-            response = await self.client.chat.completions.create(
-                model=self.model,
-                messages=[{'role': 'user', 'content': prompt}],
-                max_tokens=max_tokens
-            )
+            kwargs = {
+                'model': self.model,
+                'messages': [{'role': 'user', 'content': prompt}],
+                'max_tokens': max_tokens
+            }
+
+            # Add temperature if provided
+            if temperature is not None:
+                kwargs['temperature'] = temperature
+
+            response = await self.client.chat.completions.create(**kwargs)
             return response.choices[0].message.content
         except Exception as e:
             # Handle encoding errors gracefully
