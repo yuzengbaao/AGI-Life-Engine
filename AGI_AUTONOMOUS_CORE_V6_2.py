@@ -66,17 +66,34 @@ class V62Generator:
     
     def __init__(self, llm: DeepSeekLLM):
         self.llm = llm
-        
-        # Phase 1 components
+
+        # Phase 1 components (initialize first, needed by Phase 2)
         self.validator = CodeValidator() if PHASE1 else None
         self.fixer = LLMSemanticFixer(llm) if PHASE1 else None
-        
-        # Phase 2 components
-        self.batch_processor = AdaptiveBatchProcessor() if PHASE2 else None
-        self.incremental_validator = IncrementalValidator() if PHASE2 else None
-        self.error_classifier = ErrorClassifier() if PHASE2 else None
-        self.fix_optimizer = FixOptimizer() if PHASE2 else None
-        
+
+        # Phase 2 components (with proper dependencies)
+        if PHASE2:
+            # Create token budget for batch processor
+            from token_budget import TokenBudget
+            self.token_budget = TokenBudget() if PHASE1 else None
+
+            self.batch_processor = AdaptiveBatchProcessor(
+                token_budget=self.token_budget
+            ) if self.token_budget else None
+
+            self.incremental_validator = IncrementalValidator(
+                validator=self.validator
+            ) if self.validator else None
+
+            self.error_classifier = ErrorClassifier()
+            self.fix_optimizer = FixOptimizer()
+        else:
+            self.batch_processor = None
+            self.incremental_validator = None
+            self.error_classifier = None
+            self.fix_optimizer = None
+
+        # Configure fix optimizer with semantic fixer
         if self.fix_optimizer and self.fixer:
             self.fix_optimizer.parallel_executor.set_fixer(self.fixer)
     
@@ -208,8 +225,8 @@ async def main():
     print('AGI AUTONOMOUS CORE V6.2 - Intelligent Optimization')
     print('=' * 80)
     print()
-    print(f'[V6.2] Phase 1: {\"OK\" if PHASE1 else \"SKIP\"}')
-    print(f'[V6.2] Phase 2: {\"OK\" if PHASE2 else \"SKIP\"}')
+    print(f'[V6.2] Phase 1: {"OK" if PHASE1 else "SKIP"}')
+    print(f'[V6.2] Phase 2: {"OK" if PHASE2 else "SKIP"}')
     print()
     
     if not PHASE1 and not PHASE2:
