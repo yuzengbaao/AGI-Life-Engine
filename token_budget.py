@@ -387,15 +387,14 @@ class TokenBudget:
             if not stripped or stripped.startswith('#'):
                 continue
 
-            # Check for backslash
+            # Check for backslash (line continuation)
             if stripped.endswith('\\'):
                 incomplete_lines.append(i)
 
-            # Check for comma (incomplete parameter list)
-            if stripped.endswith(','):
-                incomplete_lines.append(i)
+            # REMOVED: Comma check - commas at end of line are valid Python syntax
+            # They're used in function arguments, list/dict elements, etc.
 
-            # Check for operators
+            # Check for operators (suspicious if line ends with operator)
             if stripped.endswith(('+', '-', '*', '/', '|', '&', '=')):
                 incomplete_lines.append(i)
 

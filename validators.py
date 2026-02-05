@@ -155,13 +155,15 @@ class CodeValidator:
                 if truncation_info.details.get(issue):
                     real_issues.append(issue)
 
-            # If the only real issue is unterminated_string, and AST parsed, it's likely a false positive
+            # If the only issue is unterminated_string OR incomplete_lines, and AST parsed, it's likely a false positive
+            # - unterminated_string: false positives from escaped quotes in docstrings
+            # - incomplete_lines: false positives from valid Python syntax (commas at end of line)
             if (len(real_issues) == 1 and
-                real_issues[0] == 'unterminated_string'):
-                # Only string issue detected, and AST parsed - likely false positive
-                logger.info("[CodeValidator] Skipping truncation: only unterminated_string detected but AST parsed")
+                real_issues[0] in ['unterminated_string', 'incomplete_lines']):
+                # Only minor issue detected, and AST parsed - likely false positive
+                logger.info(f"[CodeValidator] Skipping truncation: only {real_issues[0]} detected but AST parsed")
                 truncation_info.is_truncated = False
-                metadata['truncation_skipped'] = 'false_positive_escaped_quotes'
+                metadata['truncation_skipped'] = f'false_positive_{real_issues[0]}'
 
             if truncation_info.is_truncated:
                 # Real truncation detected (brackets, control flow, etc.)
