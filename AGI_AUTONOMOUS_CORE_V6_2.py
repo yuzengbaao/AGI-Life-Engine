@@ -160,7 +160,12 @@ class V62Generator:
             batch_code = await self._generate_batch(project_desc, batch, code)
             if not batch_code:
                 continue
-            
+
+            # Save raw generated code for debugging
+            debug_file = Path(filename).parent / f'{Path(filename).stem}_batch{i}_raw.py'
+            debug_file.write_text(batch_code, encoding='utf-8')
+            logger.info(f'[V6.2] Debug: Saved raw batch {i} to {debug_file}')
+
             # Validate & Fix
             batch_code = await self._validate_and_fix(batch_code, i)
             if batch_code:
