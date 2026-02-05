@@ -392,3 +392,34 @@ CacheEntry = OptimizedCacheEntry
 
 # 向后兼容：ToolCallCache作为优化版本的别名
 ToolCallCache = ToolCallCacheOptimized
+
+
+# 全局缓存实例（用于向后兼容）
+_global_cache: Optional[ToolCallCacheOptimized] = None
+
+
+def get_tool_call_cache(**kwargs) -> ToolCallCacheOptimized:
+    """
+    获取全局工具调用缓存实例（单例模式）
+
+    Args:
+        **kwargs: 传递给ToolCallCache的参数
+
+    Returns:
+        全局缓存实例
+    """
+    global _global_cache
+
+    if _global_cache is None:
+        _global_cache = ToolCallCacheOptimized(**kwargs)
+        logger.info("🌐 创建全局工具调用缓存实例")
+
+    return _global_cache
+
+
+def reset_tool_call_cache():
+    """重置全局工具调用缓存实例"""
+    global _global_cache
+
+    _global_cache = None
+    logger.info("🔄 重置全局工具调用缓存实例")
