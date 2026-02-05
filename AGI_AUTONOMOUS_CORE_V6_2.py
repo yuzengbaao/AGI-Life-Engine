@@ -37,6 +37,14 @@ class DeepSeekLLM:
     def __init__(self):
         self.client = None
         self.model = None
+
+        # Load environment variables
+        try:
+            from dotenv import load_dotenv
+            load_dotenv()
+        except:
+            pass  # dotenv not available
+
         try:
             import openai
             api_key = os.getenv('DEEPSEEK_API_KEY')
@@ -53,12 +61,33 @@ class DeepSeekLLM:
     async def generate(self, prompt: str, max_tokens: int = 4000) -> str:
         if not self.client:
             raise ValueError('LLM not initialized')
-        response = await self.client.chat.completions.create(
-            model=self.model,
-            messages=[{'role': 'user', 'content': prompt}],
-            max_tokens=max_tokens
-        )
-        return response.choices[0].message.content
+
+        try:
+            response = await self.client.chat.completions.create(
+                model=self.model,
+                messages=[{'role': 'user', 'content': prompt}],
+                max_tokens=max_tokens
+            )
+            return response.choices[0].message.content
+        except Exception as e:
+            # Handle encoding errors gracefully
+            if 'codec' in str(e) or 'encoding' in str(e).lower():
+                logger.warning(f'[LLM] Encoding error detected, retrying with error handling...')
+                # The response itself might be fine, just the display had issues
+                # Try again - the response should still be accessible
+                try:
+                    response = await self.client.chat.completions.create(
+                        model=self.model,
+                        messages=[{'role': 'user', 'content': prompt}],
+                        max_tokens=max_tokens
+                    )
+                    content = response.choices[0].message.content
+                    # Remove problematic characters if any
+                    return content.encode('ascii', 'ignore').decode('ascii')
+                except:
+                    logger.error(f'[LLM] Retry failed: {e}')
+                    raise
+            raise
 
 
 class V62Generator:
@@ -155,11 +184,22 @@ class V62Generator:
         if existing:
             prompt += f'\n\nExisting:\n```python\n{existing}\n```'
         prompt += '\n\nGenerate Python code with type hints.'
-        
+
         try:
+            logger.info(f'[LLM] Generating code for {len(batch)} methods...')
             response = await self.llm.generate(prompt)
-            return self._extract_code(response)
-        except:
+            code = self._extract_code(response)
+
+            if code:
+                logger.info(f'[LLM] Generated {len(code.splitlines())} lines')
+            else:
+                logger.warning('[LLM] No code extracted from response')
+
+            return code
+        except Exception as e:
+            logger.error(f'[LLM] Generation failed: {e}')
+            import traceback
+            traceback.print_exc()
             return ''
     
     async def _validate_and_fix(self, code: str, batch_idx: int) -> str:
