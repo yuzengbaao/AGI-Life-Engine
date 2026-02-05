@@ -10,7 +10,7 @@ class Calculator:
             b: Second number
             
         Returns:
-            The sum of a and b
+            Sum of a and b
         """
         return a + b
     
@@ -23,7 +23,7 @@ class Calculator:
             b: Second number to subtract from a
             
         Returns:
-            The result of a - b
+            Result of a - b
         """
         return a - b
     
@@ -36,7 +36,7 @@ class Calculator:
             b: Second number
             
         Returns:
-            The product of a and b
+            Product of a and b
         """
         return a * b
     
@@ -45,14 +45,14 @@ class Calculator:
         Divide a by b.
         
         Args:
-            a: The numerator (dividend)
-            b: The denominator (divisor)
+            a: Numerator
+            b: Denominator
             
         Returns:
-            The result of a divided by b
+            Result of a / b
             
         Raises:
-            ZeroDivisionError: If b is zero
+            ZeroDivisionError: If b is 0
         """
         if b == 0:
             raise ZeroDivisionError("Cannot divide by zero")
@@ -63,15 +63,20 @@ class Calculator:
 if __name__ == "__main__":
     calc = Calculator()
     
-    # Test the methods
-    print(f"Addition: 5.5 + 3.2 = {calc.add(5.5, 3.2)}")
-    print(f"Subtraction: 10.0 - 4.5 = {calc.subtract(10.0, 4.5)}")
-    print(f"Multiplication: 2.5 * 4.0 = {calc.multiply(2.5, 4.0)}")
-    print(f"Division: 10.0 / 2.5 = {calc.divide(10.0, 2.5)}")
+    # Test the calculator methods
+    print(f"Addition: 5 + 3 = {calc.add(5, 3)}")
+    print(f"Subtraction: 10 - 4 = {calc.subtract(10, 4)}")
+    print(f"Multiplication: 6 * 7 = {calc.multiply(6, 7)}")
+    print(f"Division: 15 / 3 = {calc.divide(15, 3)}")
     
-    # Type hints demonstration
-    result: float = calc.add(3.14, 2.86)
-    print(f"\nType hinted result: {result}")
+    # Test with floating point numbers
+    print(f"Addition (float): 2.5 + 3.7 = {calc.add(2.5, 3.7)}")
+    print(f"Subtraction (float): 8.9 - 2.3 = {calc.subtract(8.9, 2.3)}")
+    print(f"Multiplication (float): 1.5 * 4.2 = {calc.multiply(1.5, 4.2)}")
+    print(f"Division (float): 10.5 / 2.5 = {calc.divide(10.5, 2.5)}")
     
-    # Test division by zero (uncomment to see the error)
-    # print(f"Division by zero: 5.0 / 0.0 = {calc.divide(5.0, 0.0)}")
+    # Test division by zero (with error handling)
+    try:
+        print(f"Division by zero: 5 / 0 = {calc.divide(5, 0)}")
+    except ZeroDivisionError as e:
+        print(f"Division by zero error: {e}")
