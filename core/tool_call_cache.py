@@ -34,9 +34,10 @@ class OptimizedCacheEntry:
     params: Dict[str, Any]
     result: Dict[str, Any]
     timestamp: float
-    last_accessed_batch: int  # 批次号（代替精确时间戳）
     access_count: int
     ttl: float = 3600.0
+    last_accessed_batch: int = 0  # 批次号（可选，默认为0）
+    last_accessed: float = 0.0  # 添加：用于兼容touch()方法
 
     def age(self) -> float:
         """缓存年龄（秒）"""
@@ -84,6 +85,10 @@ class OptimizedCacheEntry:
         }
 
 
+# 为测试添加别名
+CacheEntry = OptimizedCacheEntry
+
+
 class ToolCallCacheOptimized:
     """
     优化的工具调用缓存器
@@ -113,9 +118,6 @@ class ToolCallCacheOptimized:
         # 有序字典: {cache_key: OptimizedCacheEntry}
         self.cache: OrderedDict[str, OptimizedCacheEntry] = OrderedDict()
 
-        # 新增：键缓存 {(tool_name, params_tuple): cache_key}
-        self.key_cache: Dict[tuple, str] = {}
-
         # 批次管理
         self.current_batch = 0
         self.batch_size = 100  # 每100次操作更新批次号
@@ -128,7 +130,6 @@ class ToolCallCacheOptimized:
             "expirations": 0,
             "total_calls": 0,
             "lru_skips": 0,  # 新增：跳过的LRU更新次数
-            "key_cache_hits": 0,  # 新增：键缓存命中次数
         }
 
         logger.info(
@@ -153,64 +154,54 @@ class ToolCallCacheOptimized:
         Returns:
             缓存键
         """
-        # 新增：创建缓存键元组（不可变，可哈希）
-        try:
-            # 规范化参数：排序键、移除 None 值
-            normalized_params = self._normalize_params(params)
-            # 创建元组用于缓存
-            params_tuple = tuple(sorted(normalized_params.items()))
-        except Exception:
-            # 如果规范化失败，使用原始params
-            params_tuple = tuple(sorted(params.items()))
-
-        # 检查键缓存
-        cache_key = self.key_cache.get((tool_name, params_tuple))
-        if cache_key:
-            self.stats["key_cache_hits"] += 1
-            return cache_key
-
-        # 未命中，生成新键
+        # 使用JSON字符串作为缓存键的基础
+        # 这样可以处理任何可序列化的类型，包括嵌套字典、列表等
         cache_input = {
             "tool": tool_name,
-            "params": normalized_params if 'normalized_params' in locals() else params,
+            "params": params,
         }
-        json_str = json.dumps(cache_input, sort_keys=True, ensure_ascii=False)
+
+        # 生成JSON字符串（排序键以确保一致性）
+        try:
+            json_str = json.dumps(cache_input, sort_keys=True, ensure_ascii=False, default=str)
+        except Exception:
+            # 如果序列化失败，使用字符串表示
+            json_str = str(cache_input)
+
+        # 生成hash
         hash_obj = hashlib.sha256(json_str.encode("utf-8"))
         cache_key = f"{tool_name}_{hash_obj.hexdigest()[:16]}"
 
-        # 缓存键
-        self.key_cache[(tool_name, params_tuple)] = cache_key
-
         return cache_key
 
-    def _normalize_params(self, params: Dict[str, Any]) -> Dict[str, Any]:
+    def _normalize_params(self, params: Any) -> Any:
         """
-        规范化参数
+        规范化参数为可哈希类型
 
         处理:
         - 排序键
         - 移除 None 值
-        - 转换集合为列表
+        - 转换不可哈希类型为可哈希类型
         """
-        normalized = {}
-
-        for key in sorted(params.keys()):
-            value = params[key]
-
-            if value is None:
-                continue
-
-            # 转换集合为列表（可哈希）
-            if isinstance(value, (set, frozenset)):
-                value = list(value)
-
-            # 递归规范嵌套字典
-            if isinstance(value, dict):
-                value = self._normalize_params(value)
-
-            normalized[key] = value
-
-        return normalized
+        if isinstance(params, dict):
+            # 字典 -> 排序后的元组
+            normalized = []
+            for key in sorted(params.keys()):
+                value = params[key]
+                if value is None:
+                    continue
+                # 递归处理值
+                normalized.append((key, self._normalize_params(value)))
+            return tuple(normalized)
+        elif isinstance(params, (list, tuple)):
+            # 列表/元组 -> 递归处理后转为元组
+            return tuple(self._normalize_params(item) for item in params)
+        elif isinstance(params, (set, frozenset)):
+            # 集合 -> 排序后的元组
+            return tuple(sorted(params))
+        else:
+            # 基本类型直接返回
+            return params
 
     def get(self, tool_name: str, params: Dict[str, Any]) -> Optional[Dict[str, Any]]:
         """
@@ -236,12 +227,8 @@ class ToolCallCacheOptimized:
         if cache_key in self.cache:
             entry = self.cache[cache_key]
 
-            # 检查过期（优先使用批次检查，降级到精确检查）
-            try:
-                is_expired = entry.is_expired_batch(self.current_batch)
-            except:
-                # 如果批次检查失败，使用精确检查
-                is_expired = entry.is_expired()
+            # 检查过期（优先使用精确检查，特别是短期TTL）
+            is_expired = entry.is_expired()
 
             if is_expired:
                 # 过期，删除并返回 None
@@ -314,7 +301,6 @@ class ToolCallCacheOptimized:
             "size": len(self.cache),
             "hit_rate": f"{(self.stats['hits'] / max(self.stats['total_calls'], 1) * 100):.1f}%",
             "lru_skip_rate": f"{(self.stats['lru_skips'] / max(self.stats['hits'], 1) * 100):.1f}%",
-            "key_cache_hit_rate": f"{(self.stats['key_cache_hits'] / max(self.stats['total_calls'], 1) * 100):.1f}%",
         }
 
     def invalidate(self, tool_name: Optional[str] = None):
