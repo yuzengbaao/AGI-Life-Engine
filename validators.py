@@ -51,7 +51,7 @@ class CodeValidator:
 
     def __init__(
         self,
-        max_tokens: int = 8000,
+        max_tokens: int = 24000,
         model: str = "deepseek-chat",
         enable_import_check: bool = True,
         enable_style_check: bool = False

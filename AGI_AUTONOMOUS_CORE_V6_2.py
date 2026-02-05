@@ -96,6 +96,71 @@ class DeepSeekLLM:
             raise
 
 
+class ZhipuLLM:
+    """智谱GLM LLM client - 支持GLM-4.7 (最新旗舰)
+
+    max_tokens: 32,768 (GLM-4.7)
+    """
+
+    def __init__(self):
+        self.client = None
+        self.model = None
+
+        # Load environment variables
+        try:
+            from dotenv import load_dotenv
+            load_dotenv()
+        except:
+            pass  # dotenv not available
+
+        try:
+            from zhipuai import ZhipuAI
+            api_key = os.getenv('ZHIPU_API_KEY')
+            if api_key:
+                self.client = ZhipuAI(api_key=api_key)
+                # 优先使用GLM-4.7（最新旗舰）
+                self.model = os.getenv('ZHIPU_MODEL', 'glm-4.7')
+                logger.info(f'[LLM] Initialized: {self.model} (max_tokens=32768)')
+        except Exception as e:
+            logger.error(f'[LLM] Init failed: {e}')
+
+    async def generate(
+        self,
+        prompt: str,
+        max_tokens: int = 32000,  # GLM-4.7支持32K输出
+        temperature: float = None
+    ) -> str:
+        """生成文本
+
+        Args:
+            prompt: 输入提示
+            max_tokens: 最大输出tokens (GLM-4.7: 32768)
+            temperature: 温度参数
+
+        Returns:
+            生成的文本
+        """
+        if not self.client:
+            raise ValueError('LLM not initialized')
+
+        try:
+            kwargs = {
+                'model': self.model,
+                'messages': [{"role": "user", "content": prompt}],
+                'max_tokens': max_tokens
+            }
+
+            # Add temperature if provided
+            if temperature is not None:
+                kwargs['temperature'] = temperature
+
+            response = self.client.chat.completions.create(**kwargs)
+            return response.choices[0].message.content
+        except Exception as e:
+            logger.error(f'[LLM] Generate failed: {e}')
+            raise
+
+
 class V62Generator:
     """V6.2 Code Generator - Phase 1 + Phase 2 Integration"""
     
