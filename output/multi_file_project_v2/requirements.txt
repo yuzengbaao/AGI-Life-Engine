@@ -1,0 +1,15 @@
+pandas
+openpyxl
+reportlab
+pyyaml
+
+# Visualization
+matplotlib>=3.7.0
+seaborn>=0.12.0
+
+# Additional data formats
+pyarrow>=10.0.0
+tables>=3.8.0
+
+# Performance monitoring
+psutil>=5.9.0
