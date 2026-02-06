@@ -1,0 +1,19 @@
+# Test Configuration
+__pycache__/
+.pytest_cache/
+*.pyc
+
+# Coverage
+htmlcov/
+.coverage
+.coverage.*
+coverage.xml
+
+# Test outputs
+test_output/
+test_reports/
+
+# Virtual environments
+venv/
+.venv/
+env/
